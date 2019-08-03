@@ -1,0 +1,161 @@
+C51 COMPILER V9.00   MAIN                                                                  02/09/2018 12:17:00 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main
+                    -.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include"STC15F2K60S2.h"
+   2          #include"allinit.h"
+   3          #include"smg.h"
+   4          #include"onewire.c"
+   5          #include"ds1302.c"
+   6          #include"keypad.h"
+   7          
+   8          #define uchar unsigned char
+   9          #define uint unsigned int
+  10          
+  11          
+  12          
+  13          void main(void)
+  14          {
+  15   1        allinit();
+  16   1        smg_Timer0init();
+  17   1        while(1)
+  18   1        {
+  19   2          key_down();
+  20   2          /*-----------------------------按键 S4------------------------------------------------------------------
+             -*/
+  21   2          if(key_value == 4)
+  22   2          {
+  23   3            switch(i4)
+  24   3            {
+  25   4              case(1) : TIME_INTERVAL = 1;break;
+  26   4              case(2) : TIME_INTERVAL = 5;break;
+  27   4              case(3) : TIME_INTERVAL = 30;break;
+  28   4              case(4) : TIME_INTERVAL = 60;break;
+  29   4            }
+  30   3            
+  31   3          }
+  32   2          /*---------------------------------数码管显示模块--------------------------------------------*/
+  33   2          if(Init_Flag == 1)
+  34   2          {
+  35   3            dspbuff[0] = 16;
+  36   3            dspbuff[1] = 16;
+  37   3            dspbuff[2] = 16;
+  38   3            dspbuff[3] = 16;
+  39   3            dspbuff[4] = 16;
+  40   3            dspbuff[5] = 17;
+  41   3            dspbuff[6] = TIME_INTERVAL / 10;
+  42   3            dspbuff[7] = TIME_INTERVAL % 10;
+  43   3          }
+  44   2          if(TIME_Dis_Flag == 1)
+  45   2          {
+  46   3            dspbuff[0] = Ds1302_Single_Byte_Read(ds1302_hr_addr) / 16;
+  47   3            dspbuff[1] = Ds1302_Single_Byte_Read(ds1302_hr_addr) % 16;
+  48   3            
+  49   3            dspbuff[3] = Ds1302_Single_Byte_Read(ds1302_min_addr) / 16;
+  50   3            dspbuff[4] = Ds1302_Single_Byte_Read(ds1302_min_addr) % 16;
+  51   3            
+  52   3            dspbuff[6] = Ds1302_Single_Byte_Read(ds1302_sec_addr) / 16;
+  53   3            dspbuff[7] = Ds1302_Single_Byte_Read(ds1302_sec_addr) % 16;
+C51 COMPILER V9.00   MAIN                                                                  02/09/2018 12:17:00 PAGE 2   
+
+  54   3            if(Ds1302_Single_Byte_Read(ds1302_sec_addr) % 2 == 0)
+  55   3            {
+  56   4              dspbuff[5] = SEC % 10;
+  57   4              dspbuff[2] = SEC / 10;
+  58   4            }
+  59   3            else
+  60   3            {
+  61   4              dspbuff[5] = 17;
+  62   4              dspbuff[2] = 17;
+  63   4            }
+  64   3          }
+  65   2      
+  66   2          /*----------------------------温度采集------------------------------------------------------------------
+             ---------------*/
+  67   2          if(TEMPER_Read_Flag == 1)
+  68   2          {
+  69   3            if(SEC == TIME_INTERVAL)
+  70   3            {
+  71   4              SEC = 0;
+  72   4              TEMPERATURES[index] = Temper_Read();
+  73   4              index++;
+  74   4            }
+  75   3          }
+  76   2          if(index == 10)
+  77   2          {
+  78   3            TEMPER_Read_Flag = 0;
+  79   3            Init_Flag = 0;
+  80   3            TIME_Dis_Flag = 0;
+  81   3            TEMPER_Dis_Flag = 1;
+  82   3            if(TWINKLE)
+  83   3            LED1(STAR);
+  84   3          }
+  85   2          /*---------------------------显示采集温度---------------------------------------------------------------
+             ---------------*/
+  86   2          if(TEMPER_Dis_Flag == 1)
+  87   2          {
+  88   3            switch(i6)
+  89   3            {
+  90   4              case(0): TEMPERATURE = TEMPERATURES[0];break;
+  91   4              case(1): TEMPERATURE = TEMPERATURES[1];break;
+  92   4              case(2): TEMPERATURE = TEMPERATURES[2];break;
+  93   4              case(3): TEMPERATURE = TEMPERATURES[3];break;
+  94   4              case(4): TEMPERATURE = TEMPERATURES[4];break;
+  95   4              case(5): TEMPERATURE = TEMPERATURES[5];break;
+  96   4              case(6): TEMPERATURE = TEMPERATURES[6];break;
+  97   4              case(7): TEMPERATURE = TEMPERATURES[7];break;
+  98   4              case(8): TEMPERATURE = TEMPERATURES[8];break;
+  99   4              case(9): TEMPERATURE = TEMPERATURES[9];break;
+ 100   4            }
+ 101   3            dspbuff[0] = 17;
+ 102   3            dspbuff[1] = i6 / 10;
+ 103   3            dspbuff[2] = i6 % 10;
+ 104   3            dspbuff[3] = 16;
+ 105   3            dspbuff[4] = 16;
+ 106   3            dspbuff[5] = 17;
+ 107   3            dspbuff[6] = TEMPERATURE / 10;
+ 108   3            dspbuff[7] = TEMPERATURE % 10;
+ 109   3          }
+ 110   2          /*----------------------由 DS1302 定时 1s---------------------------------------------------------------
+             -------*/
+ 111   2          if(flag500ms == 1 && key_value == 5)
+ 112   2          {
+C51 COMPILER V9.00   MAIN                                                                  02/09/2018 12:17:00 PAGE 3   
+
+ 113   3            flag500ms = 0;
+ 114   3             SECNOW = Ds1302_Single_Byte_Read(ds1302_sec_addr);
+ 115   3             if(SECNOW != SECTEMP)
+ 116   3             {
+ 117   4               SECTEMP = SECNOW;
+ 118   4               SEC++;
+ 119   4             }
+ 120   3          }
+ 121   2          /*---------------------------------------------------------------------------------*/
+ 122   2          if(flag1s == 1 && TWINKLE == 1)
+ 123   2          {
+ 124   3            flag1s = 0;
+ 125   3            STAR = ~STAR;
+ 126   3          }
+ 127   2        } // while(1)
+ 128   1      }
+*** WARNING C290 IN LINE 144 OF MAIN.C: missing return value
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1291    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     77    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =     13       2
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)

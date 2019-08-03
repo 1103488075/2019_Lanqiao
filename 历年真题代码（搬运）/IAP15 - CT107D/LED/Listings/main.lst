@@ -1,0 +1,44 @@
+C51 COMPILER V9.00   MAIN                                                                  01/23/2018 12:43:30 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main
+                    -.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include"STC15F2K60S2.h"
+   2          #include"allinit.h"
+   3          #include"LED.c"
+   4          #define uchar unsigned char
+   5          #define uint  unsigned int
+   6          
+   7          //º¯ÊýÉùÃ÷
+   8          
+   9          void main()
+  10          {
+  11   1        allinit();
+  12   1        while(1)
+  13   1        {
+  14   2        if(P33==0)
+  15   2        led_left();
+  16   2        if(P32==0)
+  17   2        led_right();  
+  18   2        }
+  19   1      }
+  20          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    158    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      2    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

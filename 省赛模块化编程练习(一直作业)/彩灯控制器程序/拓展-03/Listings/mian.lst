@@ -1,0 +1,328 @@
+C51 COMPILER V9.59.0.0   MIAN                                                              02/08/2019 13:58:22 PAGE 1   
+
+
+C51 COMPILER V9.59.0.0, COMPILATION OF MODULE MIAN
+OBJECT MODULE PLACED IN .\Objects\mian.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE mian.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\mian
+                    -.lst) TABS(2) OBJECT(.\Objects\mian.obj)
+
+line level    source
+
+   1          /*******************************************************************************  
+   2          * 文件名称：蓝桥杯单片机第九届省赛试题视频讲解配套程序
+   3          * 实验目的：彩灯控制器       
+   4          * 程序说明：如需了解有关本程序配套视频讲解，及比赛经验分享\
+   5          *          欢迎访问淘宝店铺网址：shop117015787.taobao.com
+   6          * 日期版本：2019-1
+   7          *******************************************************************************/
+   8          
+   9          #include<STC15F2K60S2.H>
+  10          #include<IIC.H>
+  11          
+  12          #define uchar unsigned char 
+  13          #define uint unsigned int 
+  14          
+  15          uchar code tab[]={0XC0,0XF9,0XA4,0XB0,0X99,0X92,0X82,0XF8,0X80,0X90,0XBF,0XFF};
+  16          unsigned char Digbuf[8] = {0,1,2,3,4,5,6,7};
+  17          uchar S1_Flag=0,S2_Flag=0,S3_Flag=0,S4_Flag=0;
+  18          uchar Digcom=0;
+  19          uchar Key_temp=0xff,key=0xff;
+  20          
+  21          uint LED_tt=0,LED_Time=400,Set_tt=0,AD_tt=0;
+  22          uchar LED_n=0,Mode=1,Run=0,Set=0;
+  23          uchar AD=0;
+  24          uchar Light=0,LED_T=0;
+  25          
+  26          void delayms(int ms);
+  27          void allinit(void);
+  28          void keyscan(void);
+  29          
+  30          void Timer0Init(void);
+  31          void Timer2Init(void);
+  32          void DIG(void);
+  33          void DIG_Close(void);
+  34          
+  35          void main(void)
+  36          {
+  37   1        allinit();
+  38   1        Timer0Init();
+  39   1        Timer2Init();
+  40   1        EA=1;
+  41   1        Mode=EEPROM_read(0X00);delayms(5);
+  42   1        LED_Time=EEPROM_read(0X01)*100;delayms(5);
+  43   1        while(1)
+  44   1        {
+  45   2          keyscan();
+  46   2          if((Set==0)&&(S4_Flag==1))
+  47   2          {
+  48   3            DIG_Close();
+  49   3            if(AD<64){Digbuf[6]=10;Digbuf[7]=1;}
+  50   3            else if((AD>=64)&&(AD<128)){Digbuf[6]=10;Digbuf[7]=2;}
+  51   3            else if((AD>=128)&&(AD<192)){Digbuf[6]=10;Digbuf[7]=3;}
+  52   3            else if((AD>=192)&&(AD<256)){Digbuf[6]=10;Digbuf[7]=4;}
+  53   3          }
+  54   2          else if(Set==0)
+C51 COMPILER V9.59.0.0   MIAN                                                              02/08/2019 13:58:22 PAGE 2   
+
+  55   2          {
+  56   3            DIG_Close();
+  57   3          }   
+  58   2        }
+  59   1      }
+  60          
+  61          void Time0() interrupt 1
+  62          {
+  63   1        LED_tt++;
+  64   1        Set_tt++;
+  65   1        AD_tt++;
+  66   1        
+  67   1        if((LED_tt==1)&&(Run==1))
+  68   1        {
+  69   2          if(Mode==1)
+  70   2          {
+  71   3            P2=0X00;P0=0XFF;P2=0X80;P0=~(0X01<<LED_n);P2=0X00;
+  72   3          }
+  73   2          else if(Mode==2)
+  74   2          {
+  75   3            P2=0X00;P0=0XFF;P2=0X80;P0=~(0X80>>LED_n);P2=0X00;
+  76   3          }
+  77   2          else if(Mode==3)
+  78   2          {
+  79   3            P2=0X00;P0=0XFF;P2=0X80;
+  80   3            if(LED_n==0)P0=0X7E;
+  81   3            else if(LED_n==1)P0=0XBD;
+  82   3            else if(LED_n==2)P0=0XDB;
+  83   3            else if(LED_n==3)P0=0XE7;
+  84   3            P2=0X00;
+  85   3          }
+  86   2          else if(Mode==4)
+  87   2          {
+  88   3            P2=0X00;P0=0XFF;P2=0X80;
+  89   3            if(LED_n==0)P0=0XE7;
+  90   3            else if(LED_n==1)P0=0XDB;
+  91   3            else if(LED_n==2)P0=0XBD;
+  92   3            else if(LED_n==3)P0=0X7E;
+  93   3            P2=0X00;
+  94   3          }
+  95   2        }
+  96   1        else if(LED_tt==Light)
+  97   1        {
+  98   2          P2=0X00;P0=0XFF;P2=0X80;P0=0XFF;P2=0X00;
+  99   2        }
+ 100   1        else if(LED_tt==20)
+ 101   1        {
+ 102   2          LED_tt=0;LED_T++;
+ 103   2          if((LED_T*20)>=LED_Time)
+ 104   2          {
+ 105   3            LED_T=0;
+ 106   3            if(Mode==1){LED_n++;if(LED_n>=8)LED_n=0;}
+ 107   3            else if(Mode==2){LED_n++;if(LED_n>=8)LED_n=0;}
+ 108   3            else if(Mode==3){LED_n++;if(LED_n>=4)LED_n=0;}
+ 109   3            else if(Mode==4){LED_n++;if(LED_n>=4)LED_n=0;}  
+ 110   3          }   
+ 111   2        }
+ 112   1        
+ 113   1        if(Set_tt==800)
+ 114   1        {
+ 115   2          if(Set==1)
+ 116   2          {
+C51 COMPILER V9.59.0.0   MIAN                                                              02/08/2019 13:58:22 PAGE 3   
+
+ 117   3            if(LED_Time>=1000){Digbuf[4]=LED_Time/1000;Digbuf[5]=LED_Time%1000/100;Digbuf[6]=LED_Time%100/10;Digbuf
+             -[7]=LED_Time%10;}
+ 118   3            else {Digbuf[4]=11;Digbuf[5]=LED_Time/100;Digbuf[6]=LED_Time%100/10;Digbuf[7]=LED_Time%10;} 
+ 119   3            Digbuf[0]=11;Digbuf[1]=11;Digbuf[2]=11;Digbuf[3]=11;
+ 120   3          }
+ 121   2          else if(Set==2)
+ 122   2          {
+ 123   3            Digbuf[0]=10;Digbuf[1]=Mode;Digbuf[2]=10;
+ 124   3            Digbuf[3]=11;Digbuf[4]=11;Digbuf[5]=11;Digbuf[6]=11;Digbuf[7]=11;
+ 125   3          }
+ 126   2        }
+ 127   1        else if(Set_tt==1600)
+ 128   1        {
+ 129   2          Set_tt=0;
+ 130   2          if(Set==1)
+ 131   2          {
+ 132   3            if(LED_Time>=1000){Digbuf[4]=LED_Time/1000;Digbuf[5]=LED_Time%1000/100;Digbuf[6]=LED_Time%100/10;Digbuf
+             -[7]=LED_Time%10;}
+ 133   3            else {Digbuf[4]=11;Digbuf[5]=LED_Time/100;Digbuf[6]=LED_Time%100/10;Digbuf[7]=LED_Time%10;} 
+ 134   3            Digbuf[0]=10;Digbuf[1]=Mode;Digbuf[2]=10;
+ 135   3          }
+ 136   2          else if(Set==2)
+ 137   2          {
+ 138   3            if(LED_Time>=1000){Digbuf[4]=LED_Time/1000;Digbuf[5]=LED_Time%1000/100;Digbuf[6]=LED_Time%100/10;Digbuf
+             -[7]=LED_Time%10;}
+ 139   3            else {Digbuf[4]=11;Digbuf[5]=LED_Time/100;Digbuf[6]=LED_Time%100/10;Digbuf[7]=LED_Time%10;} 
+ 140   3            Digbuf[0]=10;Digbuf[1]=Mode;Digbuf[2]=10;
+ 141   3          }
+ 142   2        }
+ 143   1      
+ 144   1        if(AD_tt==200)
+ 145   1        {
+ 146   2          AD_tt=0;
+ 147   2          AD=AD_read(0x03);
+ 148   2          if(AD<64)Light=2;//
+ 149   2          else if((AD>=64)&&(AD<128))Light=5;
+ 150   2          else if((AD>=128)&&(AD<192))Light=10;
+ 151   2          else if((AD>=192)&&(AD<256))Light=19;
+ 152   2        } 
+ 153   1      }
+ 154          
+ 155          void keyscan(void)
+ 156          {
+ 157   1        Key_temp=P3;                     // 1111 1110
+ 158   1        if( (Key_temp&0x0f) != 0x0f)      //  1111 1110 & 0000  1111  =0000 1110
+ 159   1        {
+ 160   2          delayms(5);
+ 161   2          Key_temp=P3;
+ 162   2          if( (Key_temp&0x0f) != 0x0f)
+ 163   2          {
+ 164   3            key=Key_temp&0x0f;           //key = 0000 1110
+ 165   3            if(key==0x07)S4_Flag=1;
+ 166   3          }
+ 167   2        }
+ 168   1        
+ 169   1        if(((key&0x0f) !=0x0f)&&((Key_temp&0x0f) == 0x0f))
+ 170   1        {
+ 171   2          delayms(5);
+ 172   2          if( (Key_temp&0x0f) == 0x0f)
+ 173   2          {
+ 174   3            switch(key)
+ 175   3            {
+C51 COMPILER V9.59.0.0   MIAN                                                              02/08/2019 13:58:22 PAGE 4   
+
+ 176   4              case 0x0e:
+ 177   4                LED_tt=0;
+ 178   4                if(Run==0){Run=1;LED_tt=0;LED_n=0;}
+ 179   4                else if(Run==1){Run=0;P2=0X80;P0=0XFF;}
+ 180   4                key=0xff;
+ 181   4              break;
+ 182   4              case 0x0d:
+ 183   4                if(Set==0){Set=1;Set_tt=0;DIG();}
+ 184   4                else if(Set==1){Set=2;Set_tt=0;DIG();}      
+ 185   4                else if(Set==2)
+ 186   4                {
+ 187   5                  Set=0;Set_tt=0;DIG_Close();
+ 188   5                  EEPROM_write(0X00,Mode);delayms(5);
+ 189   5                  EEPROM_write(0X01,LED_Time/100);delayms(5);
+ 190   5                }         
+ 191   4                key=0xff;
+ 192   4              break;
+ 193   4              case 0x0b:
+ 194   4                if(Set==1)
+ 195   4                {
+ 196   5                  Mode=Mode+1;if(Mode>=4)Mode=4;
+ 197   5                }
+ 198   4                else if(Set==2)
+ 199   4                {
+ 200   5                  LED_Time=LED_Time+100;if(LED_Time>=1200)LED_Time=1200;
+ 201   5                }
+ 202   4              key=0xff;
+ 203   4              break;
+ 204   4              case 0x07:
+ 205   4                S4_Flag=0;
+ 206   4                if(Set==1)
+ 207   4                {
+ 208   5                  Mode=Mode-1;if(Mode<=1)Mode=1;
+ 209   5                }
+ 210   4                else if(Set==2)
+ 211   4                {
+ 212   5                  LED_Time=LED_Time-100;if(LED_Time<=400)LED_Time=400;
+ 213   5                }
+ 214   4                key=0xff;
+ 215   4              break;
+ 216   4            } 
+ 217   3          }
+ 218   2        }
+ 219   1      }
+ 220          
+ 221          
+ 222          void DIG(void)
+ 223          {
+ 224   1        Digbuf[0]=10;Digbuf[1]=Mode;Digbuf[2]=10;Digbuf[3]=11;
+ 225   1        if(LED_Time>=1000){Digbuf[4]=LED_Time/1000;Digbuf[5]=LED_Time%1000/100;Digbuf[6]=LED_Time%100/10;Digbuf[7
+             -]=LED_Time%10;}
+ 226   1        else {Digbuf[4]=11;Digbuf[5]=LED_Time/100;Digbuf[6]=LED_Time%100/10;Digbuf[7]=LED_Time%10;}   
+ 227   1      }
+ 228          
+ 229          void DIG_Close(void)
+ 230          {
+ 231   1        Digbuf[0]=11;Digbuf[1]=11;Digbuf[2]=11;Digbuf[3]=11;Digbuf[4]=11;Digbuf[5]=11;Digbuf[6]=11;Digbuf[7]=11;
+ 232   1      }
+ 233          
+ 234          void Timer0Init(void)   //1毫秒@11.0592MHz
+ 235          {
+ 236   1        AUXR |= 0x80;   //定时器时钟1T模式
+C51 COMPILER V9.59.0.0   MIAN                                                              02/08/2019 13:58:22 PAGE 5   
+
+ 237   1        TMOD &= 0xF0;   //设置定时器模式
+ 238   1        TL0 = 0xCD;   //设置定时初值
+ 239   1        TH0 = 0xD4;   //设置定时初值
+ 240   1        TF0 = 0;    //清除TF0标志
+ 241   1        TR0 = 1;    //定时器0开始计时
+ 242   1        ET0=1;
+ 243   1      }
+ 244          
+ 245          void Timer2Init(void)   //1毫秒@11.0592MHz
+ 246          {
+ 247   1        AUXR |= 0x04;   //定时器时钟1T模式
+ 248   1        T2L = 0xCD;   //设置定时初值
+ 249   1        T2H = 0xD4;   //设置定时初值
+ 250   1        AUXR |= 0x10;   //定时器2开始计时
+ 251   1        IE2 |= 0x04;    //开定时器2中断
+ 252   1      }
+ 253          
+ 254          //中断服务程序
+ 255          void timer2int() interrupt 12           //中断入口
+ 256          {
+ 257   1          P2|=0XC0;//打开位选573   U8
+ 258   1          P2&=0XDF;
+ 259   1          P0=(1<<Digcom);
+ 260   1          P2|=0XE0;
+ 261   1          P2&=0XFF;//打开段选573   U7
+ 262   1          P0=tab[Digbuf[Digcom]];
+ 263   1          P2&=0X1F;
+ 264   1         if(++Digcom==8)Digcom=0;
+ 265   1      }
+ 266          
+ 267          void delayms(int ms)
+ 268          {
+ 269   1        int i,j;
+ 270   1        for(i=ms;i>0;i--)
+ 271   1          for(j=845;j>0;j--);
+ 272   1      }
+ 273          
+ 274          void allinit(void)
+ 275          {
+ 276   1        P2|=0XA0;
+ 277   1        P2&=0XBF;
+ 278   1        P0=0X00;//关闭蜂鸣器，继电器
+ 279   1        
+ 280   1        P2|=0X80;
+ 281   1        P2&=0X9F;
+ 282   1        P0=0XFF;//关闭LED灯
+ 283   1        
+ 284   1        P2|=0XC0;//打开位选573   U8
+ 285   1        P2&=0XDF;
+ 286   1        P0=0XFF;//选择所有数码管
+ 287   1        P2|=0XE0;//打开位选573   U7
+ 288   1        P2&=0XFF;
+ 289   1        P0=0XFF;//关闭所有数码管
+ 290   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1810    ----
+   CONSTANT SIZE    =     12    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     30    ----
+C51 COMPILER V9.59.0.0   MIAN                                                              02/08/2019 13:58:22 PAGE 6   
+
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

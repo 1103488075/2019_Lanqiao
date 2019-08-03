@@ -1,0 +1,82 @@
+C51 COMPILER V9.00   DISPLAY                                                               03/20/2019 16:27:48 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE DISPLAY
+OBJECT MODULE PLACED IN Display.OBJ
+COMPILER INVOKED BY: C:\Keil_v4\C51\BIN\C51.EXE Display.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include "Display.h"
+   2          
+   3          
+   4          uchar yi = 11,er = 11,san = 11,si = 11,wu = 11,liu = 11,qi = 11,ba = 11;
+   5          
+   6          uchar duanxuan[]={0xc0,0xf9,0xa4,0xb0,0x99,0x92,0x82,0xf8,0x80,0x90,0xbf,0xff,0xc6};
+   7          
+   8          void Display1(uchar yi,uchar er)
+   9          {
+  10   1              P2 = 0xc0; P0 = 0x01;
+  11   1              P2 = 0xff; P0 = duanxuan[yi];
+  12   1              Delay2ms();
+  13   1              P2 = 0xc0; P0 = 0x02;
+  14   1              P2 = 0xff; P0 = duanxuan[er];
+  15   1              Delay2ms();
+  16   1      }
+  17          
+  18          void Display2(uchar san,uchar si)
+  19          {
+  20   1              P2 = 0xc0; P0 = 0x04;
+  21   1              P2 = 0xff; P0 = duanxuan[san];
+  22   1              Delay2ms();
+  23   1              P2 = 0xc0; P0 = 0x08;
+  24   1              P2 = 0xff; P0 = duanxuan[si];
+  25   1              Delay2ms();
+  26   1      }
+  27          void Display3(uchar wu,uchar liu)
+  28          {
+  29   1              P2 = 0xc0; P0 = 0x10;
+  30   1              P2 = 0xff; P0 = duanxuan[wu];
+  31   1              Delay2ms();
+  32   1              P2 = 0xc0; P0 = 0x20;
+  33   1              P2 = 0xff; P0 = duanxuan[liu];
+  34   1              Delay2ms();
+  35   1      }
+  36          void Display4(uchar qi,uchar ba)
+  37          {
+  38   1              P2 = 0xc0; P0 = 0x40;
+  39   1              P2 = 0xff; P0 = duanxuan[qi];
+  40   1              Delay2ms();
+  41   1              P2 = 0xc0; P0 = 0x80;
+  42   1              P2 = 0xff; P0 = duanxuan[ba];
+  43   1              Delay2ms();
+  44   1      }
+  45          void Delay2ms()
+  46          {
+  47   1              uchar i = 22,j = 128;
+  48   1              _nop_();_nop_();
+  49   1              do
+  50   1              {
+  51   2                      while(--j);
+  52   2              }while(--i);
+  53   1      }
+  54          
+  55          
+C51 COMPILER V9.00   DISPLAY                                                               03/20/2019 16:27:48 PAGE 2   
+
+  56          
+  57          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    145    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     21       4
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

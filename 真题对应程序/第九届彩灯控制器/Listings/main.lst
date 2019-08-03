@@ -1,0 +1,435 @@
+C51 COMPILER V9.54   MAIN                                                                  10/21/2018 15:44:23 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main
+                    -.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include<stc15f2k60s2.h>
+   2          #include "intrins.h"
+   3          #include "DEPUTY.H"
+   4          
+   5          #define uchar unsigned char
+   6          #define uint  unsigned int
+   7          #define ulong unsigned long
+   8            
+   9          uchar code tab[]={0xc0,0XF9,0XA4,0XB0,0X99,0X92,0X82,0XF8,0X80,0X90,0Xbf,0XFF};//ROM
+  10          uchar dsbuff[8]={11,11,11,11,11,11,11,11};
+  11          
+  12          uint i=0,t1,t2;
+  13          uint shumadeng=1;
+  14          uint qidong=0,shezhi=0;
+  15          ulong tim,time,moshi,t,tt,ttt,tttt,flag=0,fla=0;
+  16          uint discount,liandu,dengji;
+  17          uint time1,time2,time3,time4;
+  18          uint s5=0,s4=0,A=0xff;
+  19          
+  20          void delayms(int ms);
+  21          void allinit(void);
+  22          void keyscan();
+  23          void Timer0Init(void);    //2毫秒@11.0592MHz
+  24          void Timer1Init(void);    //1微秒@11.0592MHz
+  25          void display();   //数码管显示
+  26          
+  27          void main()
+  28          {
+  29   1        moshi=1;
+  30   1        allinit();
+  31   1        Timer0Init();
+  32   1        Timer1Init();
+  33   1      
+  34   1        EEPROM_write(0X01,4);//可以写的最大的
+  35   1        delayms(5);  
+  36   1        EEPROM_write(0X02,5);//可以写的最大的
+  37   1        delayms(5); 
+  38   1        EEPROM_write(0X03,6);//可以写的最大的
+  39   1        delayms(5);  
+  40   1        EEPROM_write(0X04,8);//可以写的最大的
+  41   1        delayms(5);
+  42   1        
+  43   1        time1=EEPROM_read(0x01);
+  44   1        delayms(5);
+  45   1        time2=EEPROM_read(0x02);
+  46   1        delayms(5);
+  47   1        time3=EEPROM_read(0x03);
+  48   1        delayms(5);
+  49   1        time4=EEPROM_read(0x04);
+  50   1        delayms(5);
+  51   1        
+  52   1      //    dsbuff[0]=10;dsbuff[1]=moshi;dsbuff[2]=10;dsbuff[3]=11;dsbuff[48]=11;dsbuff[5]=time/100;dsbuff[6]=time
+             -%100/10;dsbuff[7]=time%10;
+  53   1        while(1)
+C51 COMPILER V9.54   MAIN                                                                  10/21/2018 15:44:23 PAGE 2   
+
+  54   1        {
+  55   2          if((shezhi==0)&&(P33==1))
+  56   2          {
+  57   3            if(tim<liandu) {P2=0x80;P0=A;}
+  58   3            else {P2=0x80;P0=0xff;}   
+  59   3          }
+  60   2      
+  61   2          keyscan();
+  62   2          
+  63   2          if(moshi==1) time=time1;
+  64   2          if(moshi==2) time=time2;
+  65   2          if(moshi==3) time=time3;
+  66   2          if(moshi==4) time=time4;
+  67   2          
+  68   2          if((shezhi==0)&&(P33==1))
+  69   2          { 
+  70   3            dsbuff[0]=11;dsbuff[1]=11;dsbuff[2]=11;dsbuff[3]=11;dsbuff[4]=11;dsbuff[5]=11;dsbuff[6]=11;dsbuff[7]=
+             -11;
+  71   3          }
+  72   2          
+  73   2          if(shezhi==1) 
+  74   2          {
+  75   3            dsbuff[0]=10;dsbuff[1]=moshi;dsbuff[2]=10;dsbuff[3]=11;
+  76   3            if(flag==1)
+  77   3            {
+  78   4              flag=0;
+  79   4              if(fla==0) {dsbuff[4]=time/10;dsbuff[5]=time%10;dsbuff[6]=0;dsbuff[7]=0;fla=1;}
+  80   4              else if(fla==1) {dsbuff[4]=11;dsbuff[5]=11;dsbuff[6]=11;dsbuff[7]=11;fla=0;}
+  81   4            }
+  82   3          }
+  83   2          
+  84   2          if(shezhi==2) 
+  85   2          {
+  86   3            dsbuff[3]=11;dsbuff[4]=time/10;dsbuff[5]=time%10;dsbuff[6]=0;dsbuff[7]=0;
+  87   3            if(flag==1)
+  88   3            {
+  89   4              flag=0;
+  90   4              if(fla==0) {dsbuff[0]=10;dsbuff[1]=moshi;dsbuff[2]=10;fla=1;}
+  91   4              else if(fla==1) {dsbuff[0]=11;dsbuff[1]=11;dsbuff[2]=11;fla=0;}
+  92   4            }
+  93   3          }
+  94   2          
+  95   2          if(s5==1)
+  96   2          {
+  97   3            s5=0;
+  98   3            if(shezhi==1)
+  99   3            {
+ 100   4              if(moshi==1)
+ 101   4             {  
+ 102   5                time1=time1+1;
+ 103   5                if(time1==13) time1=4;      
+ 104   5              }
+ 105   4             
+ 106   4              if(moshi==2)
+ 107   4             {  
+ 108   5                time2=time2+1;
+ 109   5                if(time2==13) time2=4;      
+ 110   5              }
+ 111   4             
+ 112   4              if(moshi==3)
+ 113   4             {  
+ 114   5                time3=time3+1;
+C51 COMPILER V9.54   MAIN                                                                  10/21/2018 15:44:23 PAGE 3   
+
+ 115   5                if(time3==13) time3=4;      
+ 116   5              }
+ 117   4             
+ 118   4              if(moshi==4)
+ 119   4             {  
+ 120   5                time4=time4+1;
+ 121   5                if(time4==13) time4=4;      
+ 122   5              }
+ 123   4            }
+ 124   3            
+ 125   3            if(shezhi==2)
+ 126   3            {
+ 127   4              moshi++;
+ 128   4              if(moshi==5) moshi=1;
+ 129   4              i=0;
+ 130   4            }   
+ 131   3          }
+ 132   2          
+ 133   2          if((shezhi==1)||(shezhi==2))
+ 134   2          {
+ 135   3            if(s4==1)
+ 136   3            {
+ 137   4              s4=0;
+ 138   4              if(shezhi==1)
+ 139   4              {
+ 140   5                if(moshi==1)
+ 141   5                {
+ 142   6                  time1=time1-1;
+ 143   6                  if(time1==3) time1=12;
+ 144   6                }
+ 145   5                
+ 146   5                if(moshi==2)
+ 147   5                {
+ 148   6                  time2=time2-1;
+ 149   6                  if(time2==3) time2=12;
+ 150   6                }
+ 151   5                
+ 152   5                if(moshi==3)
+ 153   5                {
+ 154   6                  time3=time3-1;
+ 155   6                  if(time3==3) time3=12;
+ 156   6                }
+ 157   5                
+ 158   5                if(moshi==4)
+ 159   5                {
+ 160   6                  time4=time4-1;
+ 161   6                  if(time4==3) time4=12;
+ 162   6                }
+ 163   5              }
+ 164   4              
+ 165   4              if(shezhi==2)
+ 166   4              {
+ 167   5                moshi--;
+ 168   5                if(moshi==0) moshi=4;
+ 169   5                i=0;
+ 170   5              }   
+ 171   4            }
+ 172   3          }
+ 173   2          
+ 174   2          
+ 175   2          if((shezhi==1)||(shezhi==2)) {P2=0x80;P0=0xff;}
+ 176   2          
+C51 COMPILER V9.54   MAIN                                                                  10/21/2018 15:44:23 PAGE 4   
+
+ 177   2          if((liandu>0)&&(liandu<64)) dengji=1;
+ 178   2          if((liandu>64)&&(liandu<128)) dengji=2;
+ 179   2          if((liandu>128)&&(liandu<192)) dengji=3;
+ 180   2          if((liandu>192)&&(liandu<256)) dengji=4;
+ 181   2        }
+ 182   1      }
+ 183          
+ 184          void keyscan()
+ 185          { 
+ 186   1        if(P30==0)
+ 187   1        {
+ 188   2          delayms(5);
+ 189   2          if(P30==0)
+ 190   2          {
+ 191   3            if(qidong==0) {qidong=1;}
+ 192   3            else if(qidong==1) {qidong=0;}
+ 193   3          }
+ 194   2          while(!P30);
+ 195   2        }
+ 196   1        if(P31==0)
+ 197   1        {
+ 198   2          delayms(5);
+ 199   2          if(P31==0)
+ 200   2          {
+ 201   3            if(shezhi==0) {shezhi=1;flag=0;fla=0;}    //shezhi=1;流转间隔。shezhi=2;运行模式。shezhi=0;数码全管熄灭
+             -。
+ 202   3            else if(shezhi==1) {shezhi=2;flag=0;fla=0;}
+ 203   3            else if(shezhi==2) 
+ 204   3                 {
+ 205   4                   shezhi=0;flag=0;fla=0;
+ 206   4                   if(moshi==1)
+ 207   4                   {
+ 208   5                     EEPROM_write(0X01,time1);//可以写的最大的
+ 209   5                     delayms(5);             
+ 210   5                   }
+ 211   4        
+ 212   4                   else if(moshi==2)
+ 213   4                   {
+ 214   5                     EEPROM_write(0X02,time2);//可以写的最大的
+ 215   5                     delayms(5);             
+ 216   5                   }
+ 217   4                   
+ 218   4                    else if(moshi==3)
+ 219   4                   {
+ 220   5                     EEPROM_write(0X03,time3);//可以写的最大的
+ 221   5                     delayms(5);             
+ 222   5                   }
+ 223   4                   
+ 224   4                    else if(moshi==4)
+ 225   4                   {
+ 226   5                     EEPROM_write(0X04,time4);//可以写的最大的
+ 227   5                     delayms(5);             
+ 228   5                   }
+ 229   4                 }
+ 230   3          }   
+ 231   2          while(!P31);
+ 232   2        }
+ 233   1        
+ 234   1        if(P32==0)
+ 235   1        {
+ 236   2          delayms(5);
+ 237   2          if(P32==0)
+C51 COMPILER V9.54   MAIN                                                                  10/21/2018 15:44:23 PAGE 5   
+
+ 238   2          {
+ 239   3            s5=1;
+ 240   3          }
+ 241   2          while(!P32);
+ 242   2        }
+ 243   1        
+ 244   1        if(P33==0)
+ 245   1        {
+ 246   2          delayms(5);
+ 247   2          if(P33==0)
+ 248   2          {
+ 249   3            s4=1;
+ 250   3            if(shezhi==0)
+ 251   3            { 
+ 252   4      //        dsbuff[0]=11;dsbuff[1]=11;dsbuff[2]=11;dsbuff[3]=11;dsbuff[48]=11;dsbuff[5]=11;
+ 253   4              dsbuff[6]=10;dsbuff[7]=dengji;
+ 254   4            }
+ 255   3         }
+ 256   2         while(!P33);
+ 257   2        }
+ 258   1      }
+ 259          
+ 260          void Timer1Init(void)   //50微秒@11.0592MHz
+ 261          {
+ 262   1        AUXR |= 0x40;   //定时器时钟1T模式
+ 263   1        TMOD &= 0x0F;   //设置定时器模式
+ 264   1        TL1 = 0xD7;   //设置定时初值
+ 265   1        TH1 = 0xFD;   //设置定时初值
+ 266   1        TF1 = 0;    //清除TF1标志
+ 267   1        TR1 = 1;    //定时器1开始计时
+ 268   1        ET1=1;
+ 269   1        EA=1;
+ 270   1      }
+ 271          
+ 272          void timer1() interrupt 3
+ 273          {
+ 274   1        tim++;
+ 275   1        ttt++;  
+ 276   1        
+ 277   1        if(tim>256) tim=0;
+ 278   1        
+ 279   1        if(ttt==100)     //重要，AD_read()，不要放在while(1)中。
+ 280   1        {
+ 281   2          ttt=0;
+ 282   2          liandu=AD_read(0x03);
+ 283   2        }   
+ 284   1      }
+ 285          
+ 286          void Timer0Init(void)   //2毫秒@11.0592MHz
+ 287          {
+ 288   1        AUXR |= 0x80;   //定时器时钟1T模式
+ 289   1        TMOD &= 0xF0;   //设置定时器模式
+ 290   1        TL0 = 0x9A;   //设置定时初值
+ 291   1        TH0 = 0xA9;   //设置定时初值
+ 292   1        TF0 = 0;    //清除TF0标志
+ 293   1        TR0 = 1;    //定时器0开始计时
+ 294   1        
+ 295   1        ET0=1;
+ 296   1        EA=1;
+ 297   1      }
+ 298          
+ 299          void time0() interrupt 1
+C51 COMPILER V9.54   MAIN                                                                  10/21/2018 15:44:23 PAGE 6   
+
+ 300          {
+ 301   1        display();  
+ 302   1        t++;
+ 303   1        if(t==400)
+ 304   1        {
+ 305   2          t=0;
+ 306   2          flag=1;
+ 307   2        }
+ 308   1        
+ 309   1        if((qidong==1)&&(shezhi==0))
+ 310   1        {
+ 311   2          tt++;
+ 312   2          if(tt==(time*50))
+ 313   2          {
+ 314   3            tt=0;
+ 315   3            if(moshi==1)
+ 316   3            {
+ 317   4              P2=0x80;P0=0xfe;
+ 318   4              P0=_crol_(P0,i);
+ 319   4              i++;
+ 320   4              if(i==8) i=0; 
+ 321   4              if(P0==0xff) P0=0xfe;
+ 322   4            }
+ 323   3            
+ 324   3            if(moshi==2)
+ 325   3            {
+ 326   4              P2=0x80;P0=0x7f;
+ 327   4              P0=_cror_(P0,i);
+ 328   4              i++;
+ 329   4              if(i==8) i=0; 
+ 330   4              if(P0==0xff) P0=0x7f;
+ 331   4            }
+ 332   3      
+ 333   3            if(moshi==3)
+ 334   3            {
+ 335   4              P2=0x80;t1=0x7f;t2=0xfe;
+ 336   4              
+ 337   4              P0=_cror_(t1,i)&_crol_(t2,i);
+ 338   4              i++;
+ 339   4              if(i==4) i=0;
+ 340   4              if(P0==0xff) {t1=0x7f;t2=0xfe;}
+ 341   4            }
+ 342   3            
+ 343   3            if(moshi==4)
+ 344   3            {
+ 345   4              P2=0x80;t1=0xef;t2=0xf7;
+ 346   4              P0=_crol_(t1,i)&_cror_(t2,i);
+ 347   4              i++;
+ 348   4              if(i==4) i=0; 
+ 349   4              if(P0==0xff) {t1=0xef;t2=0xf7;}
+ 350   4            }
+ 351   3            A=P0;
+ 352   3          }
+ 353   2        }
+ 354   1      }
+ 355          
+ 356          
+ 357          void allinit(void)
+ 358          {
+ 359   1        P2=0XA0;//打开控制蜂鸣器继电器573
+ 360   1        P0=0X00;//关闭蜂鸣器继电器
+ 361   1        
+C51 COMPILER V9.54   MAIN                                                                  10/21/2018 15:44:23 PAGE 7   
+
+ 362   1        P2=0XC0;//打开数码管位选
+ 363   1        P0=0XFF;//选择所有数码管
+ 364   1        P2=0XFF;//打开数码管段选
+ 365   1        P0=0XFF;//关闭所有数码管
+ 366   1        
+ 367   1        P2=0X80;//打开控制LED573
+ 368   1        P0=0XFF;//关闭所有LED灯
+ 369   1      }
+ 370          
+ 371          
+ 372          void delayms(int ms)
+ 373          {
+ 374   1        int i,j;
+ 375   1        for(i=ms;i>0;i--)
+ 376   1          for(j=845;j>0;j--);
+ 377   1      }
+ 378          
+ 379          void display()    //数码管显示
+ 380          {
+ 381   1        P2=0xef;
+ 382   1        P0=0xff;
+ 383   1        P2=0x1f;
+ 384   1      
+ 385   1        P2=0xcf;
+ 386   1        P0=1<<discount;
+ 387   1        P2=0x1f;
+ 388   1      
+ 389   1        P2=0xef;
+ 390   1        P0=tab[dsbuff[discount]];
+ 391   1        P2=0x1f;
+ 392   1      
+ 393   1        if(++discount==8)
+ 394   1          discount = 0;
+ 395   1      }
+ 396          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   2426    ----
+   CONSTANT SIZE    =     12    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     76    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,86 @@
+C51 COMPILER V9.00   SMG                                                                   04/02/2018 21:34:59 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE SMG
+OBJECT MODULE PLACED IN .\Objects\smg.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE sour\smg.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\
+                    -smg.lst) TABS(2) OBJECT(.\Objects\smg.obj)
+
+line level    source
+
+   1          #include"smg.h"
+   2          
+   3          uint cnt;   //cnt为全局变量，放到最前面可以在别的文件中使用(秒表中用到的)
+   4          
+   5          bit flag1s;
+   6          
+   7          //共阳极数码管显示段码，高不亮，低亮（这里指的是阴极端所加电压）
+   8                     //     0    1    2    3     4    5    6    7
+   9          uchar tab[28]={ 0xc0,0xf9,0xa4,0xb0, 0x99,0x92,0x82,0xf8,
+  10                     //   8    9    A    b     C    d    E    F   灭16  -
+  11                        0x80,0x90,0x88,0x83, 0xc6,0xa1,0x86,0x8e,0xff,0xbf,
+  12                     //   0.          1.        2.        3.          4.       5.         6.       7.
+  13                        0xc0&0x7f,0xf9&0x7f,0xa4&0x7f,0xb0&0x7f, 0x99&0x7f,0x92&0x7f,0x82&0x7f,0xf8&0x7f,
+  14                     //      8.       9.        取小数部分 + 18
+  15                        0x80&0x7f,0x90&0x7f};
+  16          
+  17          char dspbuff[]={16,16,16,16,16,16,16,16};
+  18          uchar dspcom=0;
+  19          
+  20          void display()
+  21          {
+  22   1        //数码管消隐
+  23   1        P2=(P2&0x1f)|0xe0;
+  24   1        P0=0xff;
+  25   1        P2&=0x1f;
+  26   1        //位选
+  27   1        P2=(P2&0x1f)|0xc0;
+  28   1        P0=(1<<dspcom);
+  29   1        P2&=0x1f;
+  30   1        //段码输入
+  31   1        P2=(P2&0x1f)|0xe0;
+  32   1        P0=tab[dspbuff[dspcom]];
+  33   1        P2&=0x1f;
+  34   1        if(++dspcom==8)
+  35   1          dspcom=0;
+  36   1      }
+  37          
+  38          void smg_Timer0init()
+  39          {
+  40   1        TMOD|= 0x01;
+  41   1        TH0 = (65535-2000)/256; //2ms
+  42   1        TL0 = (65535-2000)%256;
+  43   1        ET0 = 1;
+  44   1        TR0 = 1;
+  45   1        EA = 1;
+  46   1      }
+  47          
+  48          void smg_timer0()interrupt 1 //定时器0对应 interrupt 1
+  49          {
+  50   1        cnt++;
+  51   1        TH0=(65535-2000)/256;
+  52   1        TL0=(65535-2000)%256;
+  53   1        display();
+  54   1        if(cnt == 500)
+C51 COMPILER V9.00   SMG                                                                   04/02/2018 21:34:59 PAGE 2   
+
+  55   1        {
+  56   2          cnt = 0;
+  57   2          flag1s = 1;
+  58   2        }
+  59   1      
+  60   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    145    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     39    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      1    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

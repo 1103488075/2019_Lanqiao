@@ -1,0 +1,127 @@
+C51 COMPILER V9.00   KEY                                                                   03/16/2019 12:56:52 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE KEY
+OBJECT MODULE PLACED IN Key.OBJ
+COMPILER INVOKED BY: C:\Keil_v4\C51\BIN\C51.EXE Key.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include "Key.h"
+   2          #include "Display.h" 
+   3          #include "iic.h"
+   4          
+   5          uchar S7 = 0,S6 = 0,S5 = 0,S4 = 0;
+   6           
+   7          void key()
+   8          {
+   9   1              if(P30 == 0)
+  10   1              {
+  11   2                      Delay2ms();
+  12   2                      if(P30 == 0)
+  13   2                      {
+  14   3                         if(S7 == 0)
+  15   3                         {S7 = 1;     }
+  16   3                         else if(S7 == 1)
+  17   3                         {S7 = 0;S4 = 1;}
+  18   3                      }
+  19   2                      while(!P30);
+  20   2              }
+  21   1              else if(P31 == 0)
+  22   1              {
+  23   2                      Delay2ms();
+  24   2                      if(P31 == 0)
+  25   2                      {
+  26   3                              if(S7 == 0)
+  27   3                              {
+  28   4                                               if(S6 == 0)
+  29   4                                              {
+  30   5                                                      S6 = 1;         // temperature
+  31   5                                                      sum1 = Erprom_Read(0x00);//int
+  32   5                                                      sum2 = Erprom_Read(0x01);       //float
+  33   5                                                      yi = 16;er = 15;san = 11;si = 11;
+  34   5                                                      wu = sum1 / 10; liu = sum1 % 10; 
+  35   5                                                      qi = (uint)sum2 / 10; ba = (uint)sum2 % 10;
+  36   5                                                      jiu = 12; addr = 0x20;
+  37   5                                              }
+  38   4                                              else if(S6 == 1)
+  39   4                                              {
+  40   5                                                      S6 = 2; //voltage
+  41   5                                                      Voltage = Erprom_Read(0x03);
+  42   5                                                      yi = 16;er = 13;san = 11;si = 11;wu = 11;
+  43   5                                                      liu = 11; qi = (uint)Voltage/10;ba = (uint)Voltage%10;jiu = 12;addr = 0x40;
+  44   5                                              }
+  45   4                                              else if(S6 == 2)
+  46   4                                              {
+  47   5                                                      S6 = 3;                  //khz
+  48   5                                                      Khz = Erprom_Read(0x04);
+  49   5                                                      yi = 16;er = 14;san = 11;si = Khz/10;wu = Khz%10;
+  50   5                                                      liu = 0; qi = 0;ba = 0;jiu = 11;addr = 0xff;
+  51   5                                              }
+  52   4                                              else if(S6 == 3)        //not display
+  53   4                                              {S6 = 0;yi = 11,er = 11,san = 11,si = 11,wu = 11,liu = 11,qi = 11,ba = 11,jiu = 11;}
+  54   4                              }
+  55   3                              else if(S7 == 1)
+C51 COMPILER V9.00   KEY                                                                   03/16/2019 12:56:52 PAGE 2   
+
+  56   3                              {
+  57   4               
+  58   4                                      fazhi = fazhi + 1;
+  59   4                                      if(fazhi > 50)
+  60   4                                      fazhi = 1;      
+  61   4                              }
+  62   3                      }
+  63   2                      while(!P31);
+  64   2              }
+  65   1              else if(P32 == 0)
+  66   1              {
+  67   2                      Delay2ms();
+  68   2                      if(P32 == 0)
+  69   2                      {
+  70   3                         Eeprom_Write(0x00,sum1);
+  71   3                              Delay2ms();
+  72   3                              Delay2ms();
+  73   3                         Eeprom_Write(0x01,sum2);
+  74   3                              Delay2ms();
+  75   3                              Delay2ms();
+  76   3                         Eeprom_Write(0x03,Voltage);
+  77   3                              Delay2ms();
+  78   3                              Delay2ms();
+  79   3                         Eeprom_Write(0x04,Khz);
+  80   3                              Delay2ms();
+  81   3                              Delay2ms();
+  82   3                         Eeprom_Write(0x05,fazhi);
+  83   3                      }
+  84   2                      while(!P32);
+  85   2              }
+  86   1              else if(P33 == 0)
+  87   1              {
+  88   2                      Delay2ms();
+  89   2                      if(P33 == 0)
+  90   2                      {
+  91   3                              if(S4 == 0)
+  92   3                              {S4 = 1;}
+  93   3                              else if(S4 == 1)
+  94   3                              {S4 =2 ;}
+  95   3                              else if(S4 == 2)
+  96   3                              {S4 = 3;}
+  97   3                              else if(S4 == 3)
+  98   3                              {S4 = 0;yi = 11,er = 11,san = 11,si = 11,wu = 11,liu = 11,qi = 11,ba = 11,jiu = 11;}
+  99   3                      }
+ 100   2                      while(!P33);
+ 101   2              }
+ 102   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    562    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      4    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,140 @@
+C51 COMPILER V9.00   ONEWIRE                                                               03/15/2019 21:18:43 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE ONEWIRE
+OBJECT MODULE PLACED IN .\onewire.obj
+COMPILER INVOKED BY: C:\Keil_v4\C51\BIN\C51.EXE ..\第九届多功能测量仪EEPROMADNE555DS18B20\onewire.c BROWSE DEBUG OBJECTE
+                    -XTEND PRINT(.\onewire.lst) OBJECT(.\onewire.obj)
+
+line level    source
+
+   1          /*
+   2            程序说明: 单总线驱动程序
+   3            软件环境: Keil uVision 4.10 
+   4            硬件环境: CT107单片机综合实训平台(外部晶振12MHz) STC89C52RC单片机
+   5            日    期: 2011-8-9
+   6          */
+   7          #include "onewire.h"
+   8          
+   9          sbit DQ = P1^4;  //单总线接口
+  10          
+  11          //单总线延时函数
+  12          void Delay_OneWire(unsigned int t)  //STC89C52RC
+  13          {
+  14   1              uchar i ;
+  15   1              while(t--)
+  16   1              {
+  17   2                      for(i = 0; i< 12; i++);
+  18   2              }
+  19   1      
+  20   1      }
+  21          
+  22          //通过单总线向DS18B20写一个字节
+  23          void Write_DS18B20(unsigned char dat)
+  24          {
+  25   1              unsigned char i;
+  26   1              for(i=0;i<8;i++)
+  27   1              {
+  28   2                      DQ = 0;
+  29   2                      DQ = dat&0x01;
+  30   2                      Delay_OneWire(5);
+  31   2                      DQ = 1;
+  32   2                      dat >>= 1;
+  33   2              }
+  34   1              Delay_OneWire(5);
+  35   1      }
+  36          
+  37          //从DS18B20读取一个字节
+  38          unsigned char Read_DS18B20(void)
+  39          {
+  40   1              unsigned char i;
+  41   1              unsigned char dat;
+  42   1        
+  43   1              for(i=0;i<8;i++)
+  44   1              {
+  45   2                      DQ = 0;
+  46   2                      dat >>= 1;
+  47   2                      DQ = 1;
+  48   2                      if(DQ)
+  49   2                      {
+  50   3                              dat |= 0x80;
+  51   3                      }           
+  52   2                      Delay_OneWire(5);
+  53   2              }
+  54   1              return dat;
+C51 COMPILER V9.00   ONEWIRE                                                               03/15/2019 21:18:43 PAGE 2   
+
+  55   1      }
+  56          
+  57          //DS18B20设备初始化
+  58          bit init_ds18b20(void)
+  59          {
+  60   1              bit initflag = 0;
+  61   1              
+  62   1              DQ = 1;
+  63   1              Delay_OneWire(12);
+  64   1              DQ = 0;
+  65   1              Delay_OneWire(80);
+  66   1              DQ = 1;
+  67   1              Delay_OneWire(10); 
+  68   1          initflag = DQ;     
+  69   1              Delay_OneWire(5);
+  70   1        
+  71   1              return initflag;
+  72   1      }
+  73          uint Read_18B20()
+  74          {
+*** ERROR C231 IN LINE 74 OF ..\第九届多功能测量仪EEPROMADNE555DS18B20\ONEWIRE.C: 'Read_18B20': redefinition
+  75   1              uint temp;
+  76   1              uchar TH,TL;
+  77   1       
+  78   1              init_ds18b20();
+  79   1              Write_DS18B20(0xcc);
+  80   1              Write_DS18B20(0x44);
+  81   1              Delay_OneWire(100);
+  82   1              init_ds18b20();
+  83   1              Write_DS18B20(0xcc);
+  84   1              Write_DS18B20(0xbe);
+  85   1              TL = Read_DS18B20();
+  86   1              TH = Read_DS18B20();
+  87   1              temp = (TH<<4)|(TL>>4);
+  88   1      
+  89   1              return temp;
+  90   1      }
+*** ERROR C231 IN LINE 90 OF ..\第九届多功能测量仪EEPROMADNE555DS18B20\ONEWIRE.C: 'Read_18B20': redefinition
+  91          
+  92          float Read_18B201()
+  93          {
+  94   1              uchar TH,TL; 
+  95   1              uint temp;
+  96   1      
+  97   1              init_ds18b20();
+  98   1              Write_DS18B20(0xcc);
+  99   1              Write_DS18B20(0x44);
+ 100   1              Delay_OneWire(100);
+ 101   1              init_ds18b20();
+ 102   1              Write_DS18B20(0xcc);
+ 103   1              Write_DS18B20(0xbe);
+ 104   1              TL = Read_DS18B20();
+ 105   1              TH = Read_DS18B20();
+ 106   1      
+ 107   1              temp = (TL%16)*100/16;
+ 108   1       
+ 109   1              return temp;
+ 110   1      }
+ 111          
+ 112          
+ 113          
+ 114          
+C51 COMPILER V9.00   ONEWIRE                                                               03/15/2019 21:18:43 PAGE 3   
+
+ 115          
+ 116          
+ 117          
+ 118          
+ 119          
+ 120          
+ 121          
+ 122          
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  2 ERROR(S)

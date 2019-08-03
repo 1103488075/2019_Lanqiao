@@ -1,0 +1,360 @@
+C51 COMPILER V9.59.0.0   MAIN                                                              02/08/2019 13:57:51 PAGE 1   
+
+
+C51 COMPILER V9.59.0.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main
+                    -.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          /*******************************************************************************  
+   2          * 文件名称：蓝桥杯单片机第九届省赛试题视频讲解配套程序
+   3          * 实验目的：彩灯控制器       
+   4          * 程序说明：如需了解有关本程序配套视频讲解，及比赛经验分享\
+   5          *          欢迎访问淘宝店铺网址：shop117015787.taobao.com
+   6          * 日期版本：2019-1
+   7          *******************************************************************************/
+   8          
+   9          #include<STC15F2K60S2.H>
+  10          #include<IIC.H>
+  11          
+  12          uchar code tab[]={0xc0,0xf9,0xa4,0xb0,0x99,0x92,0x82,0xf8,0x80,0x90,0xbf,0xff}; 
+  13          uchar yi,er,san,si,wu,liu,qi,ba;
+  14          uint LED_tt=0,LED_Time=400,Set_tt=0,AD_tt=0;
+  15          uchar LED_n=0,Mode=1,Run=0,Set=0;
+  16          uchar AD=0;
+  17          uchar S4_Flag=0;
+  18          uchar Light=0,LED_T=0;
+  19          
+  20          void allinit(void);
+  21          void delayms(uint ms);
+  22          void keyscan(void);
+  23          void display1(uchar yi,uchar er);
+  24          void display2(uchar san,uchar si);
+  25          void display3(uchar wu,uchar liu);
+  26          void display4(uchar qi,uchar ba);
+  27          void Timer0Init(void);
+  28          
+  29          void main(void)
+  30          {
+  31   1        allinit();
+  32   1        Timer0Init(); 
+  33   1        Mode=EEPROM_read(0X00);delayms(5);
+  34   1        LED_Time=EEPROM_read(0X01)*100;delayms(5);
+  35   1        yi=11;er=11;san=11;si=11;wu=11;liu=11;qi=11;ba=11;
+  36   1        
+  37   1        while(1)
+  38   1        {
+  39   2          keyscan();
+  40   2          
+  41   2          if((Set==0)&&(S4_Flag==1))
+  42   2          {
+  43   3            if(AD<64){yi=11;er=11;san=11;si=11;wu=11;liu=11;qi=10;ba=1;}
+  44   3            else if((AD>=64)&&(AD<128)){yi=11;er=11;san=11;si=11;wu=11;liu=11;qi=10;ba=2;}
+  45   3            else if((AD>=128)&&(AD<192)){yi=11;er=11;san=11;si=11;wu=11;liu=11;qi=10;ba=3;}
+  46   3            else if((AD>=192)&&(AD<256)){yi=11;er=11;san=11;si=11;wu=11;liu=11;qi=10;ba=4;}
+  47   3          }
+  48   2          else if(Set==0)
+  49   2          {
+  50   3            yi=11;er=11;san=11;si=11;wu=11;liu=11;qi=11;ba=11;
+  51   3          }
+  52   2          display1(yi,er);
+  53   2          display2(san,si);
+  54   2          display3(wu,liu);
+C51 COMPILER V9.59.0.0   MAIN                                                              02/08/2019 13:57:51 PAGE 2   
+
+  55   2          display4(qi,ba);
+  56   2        }
+  57   1      }
+  58          
+  59          void Time0() interrupt 1
+  60          {
+  61   1        LED_tt++;
+  62   1        Set_tt++;
+  63   1        AD_tt++;
+  64   1        
+  65   1        if((LED_tt==1)&&(Run==1))
+  66   1        {
+  67   2          if(Mode==1)
+  68   2          {
+  69   3            P2=0X00;P0=0XFF;P2=0X80;P0=~(0X01<<LED_n);P2=0X00;
+  70   3          }
+  71   2          else if(Mode==2)
+  72   2          {
+  73   3            P2=0X00;P0=0XFF;P2=0X80;P0=~(0X80>>LED_n);P2=0X00;
+  74   3          }
+  75   2          else if(Mode==3)
+  76   2          {
+  77   3            P2=0X00;P0=0XFF;P2=0X80;
+  78   3            if(LED_n==0)P0=0X7E;
+  79   3            else if(LED_n==1)P0=0XBD;
+  80   3            else if(LED_n==2)P0=0XDB;
+  81   3            else if(LED_n==3)P0=0XE7;
+  82   3            P2=0X00;
+  83   3          }
+  84   2          else if(Mode==4)
+  85   2          {
+  86   3            P2=0X00;P0=0XFF;P2=0X80;
+  87   3            if(LED_n==0)P0=0XE7;
+  88   3            else if(LED_n==1)P0=0XDB;
+  89   3            else if(LED_n==2)P0=0XBD;
+  90   3            else if(LED_n==3)P0=0X7E;
+  91   3            P2=0X00;
+  92   3          }
+  93   2        }
+  94   1        else if(LED_tt==Light)
+  95   1        {
+  96   2          P2=0X00;P0=0XFF;P2=0X80;P0=0XFF;P2=0X00;
+  97   2        }
+  98   1        else if(LED_tt==20)
+  99   1        {
+ 100   2          LED_tt=0;LED_T++;
+ 101   2          if((LED_T*20)>=LED_Time)
+ 102   2          {
+ 103   3            LED_T=0;
+ 104   3            if(Mode==1){LED_n++;if(LED_n>=8)LED_n=0;}
+ 105   3            else if(Mode==2){LED_n++;if(LED_n>=8)LED_n=0;}
+ 106   3            else if(Mode==3){LED_n++;if(LED_n>=4)LED_n=0;}
+ 107   3            else if(Mode==4){LED_n++;if(LED_n>=4)LED_n=0;}  
+ 108   3          }   
+ 109   2        }
+ 110   1        
+ 111   1        if(Set_tt==800)
+ 112   1        {
+ 113   2          if(Set==1)
+ 114   2          {
+ 115   3            if(LED_Time>=1000){wu=LED_Time/1000;liu=LED_Time%1000/100;qi=LED_Time%100/10;ba=LED_Time%10;}
+ 116   3            else {wu=11;liu=LED_Time/100;qi=LED_Time%100/10;ba=LED_Time%10;}  
+C51 COMPILER V9.59.0.0   MAIN                                                              02/08/2019 13:57:51 PAGE 3   
+
+ 117   3            yi=11;er=11;san=11;si=11;
+ 118   3          }
+ 119   2          else if(Set==2)
+ 120   2          {
+ 121   3            yi=10;er=Mode;san=10;si=11;wu=11;liu=11;qi=11;ba=11;
+ 122   3          }
+ 123   2        }
+ 124   1        else if(Set_tt==1600)
+ 125   1        {
+ 126   2          Set_tt=0;
+ 127   2          if(Set==1)
+ 128   2          {
+ 129   3            if(LED_Time>=1000){wu=LED_Time/1000;liu=LED_Time%1000/100;qi=LED_Time%100/10;ba=LED_Time%10;}
+ 130   3            else {wu=11;liu=LED_Time/100;qi=LED_Time%100/10;ba=LED_Time%10;}  
+ 131   3            yi=10;er=Mode;san=10;si=11;
+ 132   3          }
+ 133   2          else if(Set==2)
+ 134   2          {
+ 135   3            if(LED_Time>=1000){wu=LED_Time/1000;liu=LED_Time%1000/100;qi=LED_Time%100/10;ba=LED_Time%10;}
+ 136   3            else {wu=11;liu=LED_Time/100;qi=LED_Time%100/10;ba=LED_Time%10;}  
+ 137   3            yi=10;er=Mode;san=10;si=11;
+ 138   3          }
+ 139   2        }
+ 140   1      
+ 141   1        if(AD_tt==200)
+ 142   1        {
+ 143   2          AD_tt=0;
+ 144   2          AD=AD_read(0x03);
+ 145   2          if(AD<64)Light=2;//
+ 146   2          else if((AD>=64)&&(AD<128))Light=5;
+ 147   2          else if((AD>=128)&&(AD<192))Light=10;
+ 148   2          else if((AD>=192)&&(AD<256))Light=19;
+ 149   2        } 
+ 150   1      }
+ 151          
+ 152          void keyscan(void)
+ 153          {
+ 154   1        if(P30==0)
+ 155   1        {
+ 156   2          delayms(5);
+ 157   2          if(P30==0)
+ 158   2          {
+ 159   3            LED_tt=0;
+ 160   3            if(Run==0){Run=1;LED_tt=0;LED_n=0;}
+ 161   3            else if(Run==1){Run=0;P2=0X80;P0=0XFF;}
+ 162   3          }
+ 163   2          while(!P30);
+ 164   2        }
+ 165   1        else if(P31==0)
+ 166   1        {
+ 167   2          delayms(5);
+ 168   2          if(P31==0)
+ 169   2          {
+ 170   3            if(Set==0)
+ 171   3            {
+ 172   4              Set=1;Set_tt=0;
+ 173   4              yi=10;er=Mode;san=10;si=11;
+ 174   4              if(LED_Time>=1000){wu=LED_Time/1000;liu=LED_Time%1000/100;qi=LED_Time%100/10;ba=LED_Time%10;}
+ 175   4              else {wu=11;liu=LED_Time/100;qi=LED_Time%100/10;ba=LED_Time%10;}  
+ 176   4            }
+ 177   3            else if(Set==1)
+ 178   3            {
+C51 COMPILER V9.59.0.0   MAIN                                                              02/08/2019 13:57:51 PAGE 4   
+
+ 179   4              Set=2;Set_tt=0;
+ 180   4              yi=10;er=Mode;san=10;si=11;
+ 181   4              if(LED_Time>=1000){wu=LED_Time/1000;liu=LED_Time%1000/100;qi=LED_Time%100/10;ba=LED_Time%10;}
+ 182   4              else {wu=11;liu=LED_Time/100;qi=LED_Time%100/10;ba=LED_Time%10;}  
+ 183   4            }
+ 184   3            else if(Set==2)
+ 185   3            {
+ 186   4              Set=0;Set_tt=0;
+ 187   4              yi=11;er=11;san=11;si=11;wu=11;liu=11;qi=11;ba=11;
+ 188   4              EEPROM_write(0X00,Mode);delayms(5);
+ 189   4              EEPROM_write(0X01,LED_Time/100);delayms(5);
+ 190   4            }
+ 191   3          }
+ 192   2          while(!P31);
+ 193   2        }
+ 194   1        else if(P32==0)
+ 195   1        {
+ 196   2          delayms(5);
+ 197   2          if(P32==0)
+ 198   2          {
+ 199   3            if(Set==1)
+ 200   3            {
+ 201   4              Mode=Mode+1;if(Mode>=4)Mode=4;
+ 202   4            }
+ 203   3            else if(Set==2)
+ 204   3            {
+ 205   4              LED_Time=LED_Time+100;if(LED_Time>=1200)LED_Time=1200;
+ 206   4            }
+ 207   3          }
+ 208   2          while(!P32);
+ 209   2        }
+ 210   1        else if(P33==0)
+ 211   1        {
+ 212   2          delayms(5);
+ 213   2          if(P33==0)
+ 214   2          {
+ 215   3            S4_Flag=1;
+ 216   3          }
+ 217   2        }
+ 218   1        
+ 219   1        if((S4_Flag==1)&&(P33==1))
+ 220   1        {
+ 221   2          S4_Flag=0;
+ 222   2          if(Set==1)
+ 223   2          {
+ 224   3            Mode=Mode-1;if(Mode<=1)Mode=1;
+ 225   3          }
+ 226   2          else if(Set==2)
+ 227   2          {
+ 228   3            LED_Time=LED_Time-100;if(LED_Time<=400)LED_Time=400;
+ 229   3          }
+ 230   2        }
+ 231   1      }
+ 232          
+ 233          void Timer0Init(void)   //1毫秒@11.0592MHz
+ 234          {
+ 235   1        AUXR |= 0x80;   //定时器时钟1T模式
+ 236   1        TMOD &= 0xF0;   //设置定时器模式
+ 237   1        TL0 = 0xCD;   //设置定时初值
+ 238   1        TH0 = 0xD4;   //设置定时初值
+ 239   1        TF0 = 0;    //清除TF0标志
+ 240   1        TR0 = 1;    //定时器0开始计时
+C51 COMPILER V9.59.0.0   MAIN                                                              02/08/2019 13:57:51 PAGE 5   
+
+ 241   1        ET0=1;
+ 242   1        EA=1;
+ 243   1      }
+ 244          
+ 245          
+ 246          void allinit(void)
+ 247          {
+ 248   1        P2=0XA0;
+ 249   1        P0=0x00;//关闭蜂鸣器继电器
+ 250   1        
+ 251   1        P2=0X80;
+ 252   1        P0=0XFF;//关闭LED灯
+ 253   1        
+ 254   1        P2=0XC0;
+ 255   1        P0=0XFF;//选择所有数码管
+ 256   1        P2=0XFF;
+ 257   1        P0=0XFF;//关闭多有数码管  
+ 258   1      }
+ 259          
+ 260          void display1(uchar yi,uchar er)
+ 261          {
+ 262   1        P2=0XC0;
+ 263   1        P0=0X01;
+ 264   1        P2=0XFF;
+ 265   1        P0=tab[yi];
+ 266   1        delayms(1);
+ 267   1        
+ 268   1        P2=0XC0;
+ 269   1        P0=0X02;
+ 270   1        P2=0XFF;
+ 271   1        P0=tab[er];
+ 272   1        delayms(1);
+ 273   1      }
+ 274          
+ 275          void display2(uchar san,uchar si)
+ 276          {
+ 277   1        P2=0XC0;
+ 278   1        P0=0X04;//选择所有数码管
+ 279   1        P2=0XFF;
+ 280   1        P0=tab[san];//关闭多有数码管  
+ 281   1        delayms(1);
+ 282   1        
+ 283   1        P2=0XC0;
+ 284   1        P0=0X08;//选择所有数码管
+ 285   1        P2=0XFF;
+ 286   1        P0=tab[si];//关闭多有数码管 
+ 287   1        delayms(1);
+ 288   1      }
+ 289          
+ 290          void display3(uchar wu,uchar liu)
+ 291          {
+ 292   1        P2=0XC0;
+ 293   1        P0=0X10;//选择所有数码管
+ 294   1        P2=0XFF;
+ 295   1        P0=tab[wu];//关闭多有数码管 
+ 296   1        delayms(1);
+ 297   1        
+ 298   1        P2=0XC0;
+ 299   1        P0=0X20;//选择所有数码管
+ 300   1        P2=0XFF;
+ 301   1        P0=tab[liu];//关闭多有数码管  
+ 302   1        delayms(1);
+C51 COMPILER V9.59.0.0   MAIN                                                              02/08/2019 13:57:51 PAGE 6   
+
+ 303   1      }
+ 304          
+ 305          void display4(uchar qi,uchar ba)
+ 306          {
+ 307   1        P2=0XC0;
+ 308   1        P0=0X40;//选择所有数码管
+ 309   1        P2=0XFF;
+ 310   1        P0=tab[qi];//关闭多有数码管 
+ 311   1        delayms(1);
+ 312   1        
+ 313   1        P2=0XC0;
+ 314   1        P0=0X80;//选择所有数码管
+ 315   1        P2=0XFF;
+ 316   1        P0=tab[ba];//关闭多有数码管 
+ 317   1        delayms(1);
+ 318   1      }
+ 319          
+ 320          
+ 321          void delayms(uint ms)
+ 322          {
+ 323   1        uint i,j;
+ 324   1        for(i=ms;i>0;i--)
+ 325   1          for(j=845;j>0;j--);
+ 326   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   2070    ----
+   CONSTANT SIZE    =     12    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     24       4
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

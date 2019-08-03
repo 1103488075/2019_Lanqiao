@@ -1,0 +1,8 @@
+"display.obj",
+"Key.obj",
+"Main.obj",
+"ds1302.obj",
+"iic.obj",
+"onewire.obj" 
+TO "Text" 
+RAMSIZE(256) 

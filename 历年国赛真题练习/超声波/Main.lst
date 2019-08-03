@@ -1,0 +1,93 @@
+C51 COMPILER V9.00   MAIN                                                                  03/15/2019 21:14:38 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Main.obj
+COMPILER INVOKED BY: C:\Keil_v4\C51\BIN\C51.EXE ..\第九届多功能测量仪EEPROMADNE555DS18B20\Main.c BROWSE DEBUG OBJECTEXTE
+                    -ND PRINT(.\Main.lst) OBJECT(.\Main.obj)
+
+line level    source
+
+   1          #include "Head.h"
+   2          #include "Display.h"
+   3          #include "key.h"
+   4          #include "iic.h"
+   5          #include "onewire.h"
+   6          
+   7          void InitAll();
+   8          
+   9          double Voltage = 0;
+  10          uint Khz = 32;//频率
+  11          uint sum1;
+  12          float sum2;//temperature
+  13           
+  14          
+  15          
+  16          uchar addr;
+  17          void main()
+  18          {
+  19   1              InitAll();
+  20   1       
+  21   1              while(1)
+  22   1              {
+  23   2                       if(S4 == 0)    //not display
+  24   2                       {
+  25   3                               yi = 11,er = 11,san = 11,si = 11,wu = 11,liu = 11,qi = 11,ba = 11,jiu = 11;
+  26   3                       }
+  27   2                      else if(S4 == 1)         //voltage
+  28   2                      {
+  29   3                              Voltage = Read_AD(0x03);
+  30   3                              Voltage = Voltage*10;
+  31   3                              yi = 13;er = 11;san = 11;si = 11;wu = 11;
+  32   3                              liu = 11; qi = (uint)Voltage/10;ba = (uint)Voltage%10;jiu = 12;addr = 0x40;
+  33   3      
+  34   3                      }
+  35   2                      else if(S4 == 2)   //khz
+  36   2                      {
+  37   3                              yi = 14;er = 11;san = 11;si = Khz/10;wu = Khz%10;
+  38   3                              liu = 0; qi = 0;ba = 0;jiu = 11;addr = 0xff;
+  39   3                      }
+  40   2                      else if(S4 == 3)  //temperature
+  41   2                      {
+  42   3                              sum1 = Read_18B20();  //read temperature int  
+  43   3                               sum2 =   Read_18B201(); //read temperature float
+  44   3               
+  45   3                              yi = 15;er = 11;san = 11;si = 11;
+  46   3                              wu = sum1 / 10; liu = sum1 % 10; 
+  47   3                              qi = (uint)sum2 / 10; ba = (uint)sum2 % 10;
+  48   3                              jiu = 12; addr = 0x20;
+  49   3                      }
+  50   2               
+  51   2      
+  52   2                      Key();
+  53   2                      Display1(yi,er);
+  54   2                      Display2(san,si);
+C51 COMPILER V9.00   MAIN                                                                  03/15/2019 21:14:38 PAGE 2   
+
+  55   2                      Display3(wu,liu);
+  56   2                      Display4(qi,ba);
+  57   2                      Display5(addr,jiu);      //display location and "."
+  58   2              }
+  59   1      }
+  60          
+  61          void InitAll()
+  62          {
+  63   1              P2 = 0xa0; P0 = 0x00;
+  64   1              P2 = 0x80; P0 = 0xff;
+  65   1              P2 = 0xc0; P0 = 0xff;
+  66   1              P2 = 0xff; P0 = 0xff;
+  67   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    356    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     13    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

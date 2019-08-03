@@ -1,0 +1,265 @@
+C51 COMPILER V9.56.0.0   MAIN                                                              10/05/2017 16:25:45 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main
+                    -.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include<STC15F2K60S2.H>
+   2          #include "DEPUTY.H"
+   3          
+   4          #define uchar unsigned char
+   5          #define uint unsigned int
+   6            
+   7          uchar code tab[]={0xc0,0xf9,0xa4,0xb0,0x99,0x92,0x82,0xf8,0x80,0x90,0xbf,0xff}; 
+   8          uchar yi,er,san,si,wu,liu,qi,ba;
+   9          extern unsigned char shijian[]; 
+  10          uchar Timec=1;
+  11          uchar wendu;
+  12          uchar Cai_start=0;
+  13          uint tt=0;
+  14          uchar Save[10],Save_n=0;
+  15          bit fla=0,LED_shan=0;
+  16          
+  17          void allinit(void);
+  18          void delayms(uint ms);
+  19          void keyscan(void);
+  20          void display1(uchar yi,uchar er);
+  21          void display2(uchar san,uchar si);
+  22          void display3(uchar wu,uchar liu);
+  23          void display4(uchar qi,uchar ba);
+  24          void Timer0Init(void);
+  25          
+  26          void main(void)
+  27          {
+  28   1        allinit();
+  29   1        DS_init();
+  30   1        Timer0Init();
+  31   1        yi=11;er=11;san=11;si=11;wu=11;liu=10;qi=0;ba=1;
+  32   1        while(1)
+  33   1        {
+  34   2          wendu=Tempget();
+  35   2          if(Cai_start==0)
+  36   2          {
+  37   3            yi=11;er=11;san=11;si=11;wu=11;liu=10;
+  38   3            qi=Timec/10;ba=Timec%10;
+  39   3          }
+  40   2          else if(Cai_start==1)
+  41   2          {
+  42   3            DS_get();
+  43   3            yi=shijian[2]/10;er=shijian[2]%10;
+  44   3            si=shijian[1]/10;wu=shijian[1]%10;
+  45   3            qi=shijian[0]/10;ba=shijian[0]%10;
+  46   3            
+  47   3            if(shijian[0]%2==0){san=10;liu=10;}
+  48   3            else {san=11;liu=11;}     
+  49   3          } 
+  50   2          keyscan();
+  51   2          display1(yi,er);
+  52   2          display2(san,si);
+  53   2          display3(wu,liu);
+  54   2          display4(qi,ba);
+C51 COMPILER V9.56.0.0   MAIN                                                              10/05/2017 16:25:45 PAGE 2   
+
+  55   2        }
+  56   1      }
+  57          
+  58          void Timer0Init(void)   //5毫秒@11.0592MHz
+  59          {
+  60   1        AUXR |= 0x80;   //定时器时钟1T模式
+  61   1        TMOD &= 0xF0;   //设置定时器模式
+  62   1        TL0 = 0x00;   //设置定时初值
+  63   1        TH0 = 0x28;   //设置定时初值
+  64   1        TF0 = 0;    //清除TF0标志
+  65   1        TR0 = 1;    //定时器0开始计时
+  66   1        ET0=1;
+  67   1        EA=1;
+  68   1      }
+  69          
+  70          void timer0() interrupt 1
+  71          {
+  72   1        tt++;
+  73   1        if((tt==Timec*200)&&(Cai_start==1))
+  74   1        {
+  75   2          tt=0;
+  76   2          Save[Save_n]=wendu;
+  77   2          Save_n++;
+  78   2          if(Save_n==10)
+  79   2          {
+  80   3            Cai_start=2;LED_shan=1;Save_n=0;
+  81   3            yi=10;er=0;san=0;si=11;wu=11;liu=10;qi=Save[0]/10;ba=Save[0]%10;
+  82   3          }
+  83   2        }
+  84   1        
+  85   1        if((Cai_start==2)&&(tt==200))
+  86   1        {
+  87   2          tt=0;
+  88   2          if(LED_shan==1)
+  89   2          {
+  90   3            if(fla==0){fla=1;P2=0X80;P0=0XFE;}
+  91   3            else if(fla==1){fla=0;P2=0X80;P0=0XFF;}
+  92   3          }
+  93   2          else if(LED_shan==0)
+  94   2          {
+  95   3            yi=10;si=11;wu=11;liu=10;
+  96   3            er=Save_n/10;san=Save_n%10;
+  97   3            qi=Save[Save_n]/10;ba=Save[Save_n]%10;
+  98   3            Save_n++;
+  99   3            if(Save_n==10)
+ 100   3            {
+ 101   4              Save_n=0;
+ 102   4              Cai_start=3;
+ 103   4            }
+ 104   3          }
+ 105   2        }
+ 106   1      }
+ 107          
+ 108          void keyscan(void)
+ 109          {
+ 110   1        if(P30==0)
+ 111   1        {
+ 112   2          delayms(5);
+ 113   2          if(P30==0)
+ 114   2          {
+ 115   3            if(Cai_start==3)Cai_start=0;      
+ 116   3          }
+C51 COMPILER V9.56.0.0   MAIN                                                              10/05/2017 16:25:45 PAGE 3   
+
+ 117   2          while(!P30);
+ 118   2        }
+ 119   1        else if(P31==0)
+ 120   1        {
+ 121   2          delayms(5);
+ 122   2          if(P31==0)
+ 123   2          {
+ 124   3            if(Cai_start==2){LED_shan=0;P2=0X80;P0=0XFF;}
+ 125   3          }
+ 126   2          while(!P31);
+ 127   2        }
+ 128   1        else if(P32==0)
+ 129   1        {
+ 130   2          delayms(5);
+ 131   2          if(P32==0)
+ 132   2          {
+ 133   3            if(Cai_start==0){Cai_start=1;tt=0;}
+ 134   3          }
+ 135   2          while(!P32);
+ 136   2        }
+ 137   1        else if(P33==0)
+ 138   1        {
+ 139   2          delayms(5);
+ 140   2          if(P33==0)
+ 141   2          {
+ 142   3            if(Cai_start==0)
+ 143   3            {
+ 144   4              if(Timec==1)Timec=5;
+ 145   4              else if(Timec==5)Timec=30;
+ 146   4              else if(Timec==30)Timec=60;
+ 147   4              else if(Timec==60)Timec=1;
+ 148   4            }
+ 149   3          }
+ 150   2          while(!P33);
+ 151   2        }
+ 152   1      }
+ 153          
+ 154          void allinit(void)
+ 155          {
+ 156   1        P2=0XA0;
+ 157   1        P0=0x00;//关闭蜂鸣器继电器
+ 158   1        
+ 159   1        P2=0X80;
+ 160   1        P0=0XFF;//关闭LED灯
+ 161   1        
+ 162   1        P2=0XC0;
+ 163   1        P0=0XFF;//选择所有数码管
+ 164   1        P2=0XFF;
+ 165   1        P0=0XFF;//关闭多有数码管  
+ 166   1      }
+ 167          
+ 168          void display1(uchar yi,uchar er)
+ 169          {
+ 170   1        P2=0XC0;
+ 171   1        P0=0X01;//选择所有数码管
+ 172   1        P2=0XFF;
+ 173   1        P0=tab[yi];//关闭多有数码管 
+ 174   1        delayms(1);
+ 175   1        
+ 176   1        P2=0XC0;
+ 177   1        P0=0X02;//选择所有数码管
+ 178   1        P2=0XFF;
+C51 COMPILER V9.56.0.0   MAIN                                                              10/05/2017 16:25:45 PAGE 4   
+
+ 179   1        P0=tab[er];//关闭多有数码管 
+ 180   1        delayms(1);
+ 181   1      }
+ 182          
+ 183          void display2(uchar san,uchar si)
+ 184          {
+ 185   1        P2=0XC0;
+ 186   1        P0=0X04;//选择所有数码管
+ 187   1        P2=0XFF;
+ 188   1        P0=tab[san];//关闭多有数码管  
+ 189   1        delayms(1);
+ 190   1        
+ 191   1        P2=0XC0;
+ 192   1        P0=0X08;//选择所有数码管
+ 193   1        P2=0XFF;
+ 194   1        P0=tab[si];//关闭多有数码管 
+ 195   1        delayms(1);
+ 196   1      }
+ 197          
+ 198          void display3(uchar wu,uchar liu)
+ 199          {
+ 200   1        P2=0XC0;
+ 201   1        P0=0X10;//选择所有数码管
+ 202   1        P2=0XFF;
+ 203   1        P0=tab[wu];//关闭多有数码管 
+ 204   1        delayms(1);
+ 205   1        
+ 206   1        P2=0XC0;
+ 207   1        P0=0X20;//选择所有数码管
+ 208   1        P2=0XFF;
+ 209   1        P0=tab[liu];//关闭多有数码管  
+ 210   1        delayms(1);
+ 211   1      }
+ 212          
+ 213          void display4(uchar qi,uchar ba)
+ 214          {
+ 215   1        P2=0XC0;
+ 216   1        P0=0X40;//选择所有数码管
+ 217   1        P2=0XFF;
+ 218   1        P0=tab[qi];//关闭多有数码管 
+ 219   1        delayms(1);
+ 220   1        
+ 221   1        P2=0XC0;
+ 222   1        P0=0X80;//选择所有数码管
+ 223   1        P2=0XFF;
+ 224   1        P0=tab[ba];//关闭多有数码管 
+ 225   1        delayms(1);
+ 226   1      }
+ 227          
+ 228          void delayms(uint ms)
+ 229          {
+ 230   1        uint i,j;
+ 231   1        for(i=ms;i>0;i--)
+ 232   1          for(j=845;j>0;j--);
+ 233   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    795    ----
+   CONSTANT SIZE    =     12    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+C51 COMPILER V9.56.0.0   MAIN                                                              10/05/2017 16:25:45 PAGE 5   
+
+   DATA SIZE        =     24       4
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      2    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,133 @@
+C51 COMPILER V9.00   KEY                                                                   03/20/2019 21:56:14 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE KEY
+OBJECT MODULE PLACED IN Key.OBJ
+COMPILER INVOKED BY: C:\Keil_v4\C51\BIN\C51.EXE Key.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include "Key.h"
+   2          #include "Display.h"
+   3          #include "iic.h"
+   4           uchar S6 = 0,S5 = 0,S4 = 0;
+   5           bit S7 = 0;
+   6          void Key()
+   7          {
+   8   1         if(P30 == 0)
+   9   1          {
+  10   2              Delay2ms();
+  11   2              if (P30 == 0)   
+  12   2              {
+  13   3                      if(S7 == 0)
+  14   3                              {S7 = 1;}
+  15   3                              else if(S7 == 1)
+  16   3                              {S7 = 0;}
+  17   3              }
+  18   2              while(!P30);
+  19   2          }
+  20   1          else if(P31 == 0)  
+  21   1          {
+  22   2              Delay2ms();
+  23   2              if (P31 == 0)
+  24   2              {
+  25   3                      if(S6 == 0)
+  26   3                              {S6 = 1;}
+  27   3                              else if(S6 == 1)
+  28   3                              {S6 = 2;}
+  29   3                              else if(S6 == 2)
+  30   3                              {S6 = 0;yi = 11,er = 11,san = 11,si = 11,wu = 11,liu = 11,qi = 11,ba = 11;
+  31   4                              Delay2ms();
+  32   4                              Write_EEPROM(0x00,mode);
+  33   4                              Delay2ms();     
+  34   4                              num = Interval/10;
+  35   4                              Write_EEPROM(0x01,num); 
+  36   4                              }
+  37   3              }
+  38   2              while(!P31);
+  39   2          }
+  40   1          else if(P32 == 0)
+  41   1          {
+  42   2              Delay2ms();
+  43   2              if (P32 == 0)
+  44   2              {
+  45   3                               if(S6 == 1)
+  46   3                               {
+  47   4                                      mode = mode + 1;
+  48   4                                      if(mode >= 4){mode = 4;}
+  49   4                               }
+  50   3                               else if(S6 == 2)
+  51   3                               {
+  52   4                                      Interval = Interval + 100;
+  53   4                                      if(Interval >= 1200){Interval = 1200;}
+  54   4                               }
+  55   3                       
+C51 COMPILER V9.00   KEY                                                                   03/20/2019 21:56:14 PAGE 2   
+
+  56   3              }
+  57   2              while(!P32);
+  58   2          }
+  59   1           if(P33 == 0 && S6 != 0) 
+  60   1          {
+  61   2              Delay2ms();
+  62   2              if (P33 == 0&& S6 != 0)
+  63   2              {
+  64   3                  if(S6 == 1)
+  65   3                               {
+  66   4                                      mode = mode - 1;
+  67   4                                      if(mode <= 1){mode = 1;}
+  68   4                               }
+  69   3                               else if(S6 == 2)
+  70   3                               {
+  71   4                                      Interval = Interval - 100;
+  72   4                                      if(Interval <= 400){Interval = 400;}
+  73   4                               }
+  74   3              }
+  75   2              while(!P33);
+  76   2          }
+  77   1              else  if(S6 == 0 && P33 == 0)
+  78   1              {
+  79   2                      if(P33 == 0 && S6 == 0)
+  80   2                      {
+  81   3                              Delay2ms() ;
+  82   3                              if(P33 == 0 && S6 == 0)
+  83   3                              {
+  84   4                              if(luminance<64){yi=11;er=11;san=11;si=11;wu=11;liu=11;qi=10;ba=1;}
+  85   4                              else if((luminance>=64)&&(luminance<128)){yi=11;er=11;san=11;si=11;wu=11;liu=11;qi=10;ba=2;}
+  86   4                              else if((luminance>=128)&&(luminance<192)){yi=11;er=11;san=11;si=11;wu=11;liu=11;qi=10;ba=3;}
+  87   4                              else if((luminance>=192)&&(luminance<256)){yi=11;er=11;san=11;si=11;wu=11;liu=11;qi=10;ba=4;}
+  88   4                              }
+  89   3                      }
+  90   2              }
+  91   1               
+  92   1      }       
+  93          
+  94          
+  95          
+  96          
+  97          
+  98          
+  99          
+ 100          
+ 101          
+ 102          
+ 103                                                                            
+ 104           
+ 105                  
+ 106           
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    455    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      3    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      1    ----
+END OF MODULE INFORMATION.
+
+C51 COMPILER V9.00   KEY                                                                   03/20/2019 21:56:14 PAGE 3   
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

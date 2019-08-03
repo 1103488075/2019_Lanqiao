@@ -1,0 +1,6 @@
+"Display.obj",
+"iic.obj",
+"Key.obj",
+"Main.obj" 
+TO "LedControl" 
+RAMSIZE(256) 

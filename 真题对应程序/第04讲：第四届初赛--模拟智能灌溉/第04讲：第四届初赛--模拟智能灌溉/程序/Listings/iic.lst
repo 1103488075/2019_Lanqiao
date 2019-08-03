@@ -1,0 +1,192 @@
+C51 COMPILER V9.56.0.0   IIC                                                               10/04/2017 16:36:44 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE IIC
+OBJECT MODULE PLACED IN .\Objects\iic.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE iic.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\iic.l
+                    -st) TABS(2) OBJECT(.\Objects\iic.obj)
+
+line level    source
+
+   1          #include<STC15F2K60S2.H>
+   2          #include "intrins.h"
+   3          #include "iic.h"
+   4          
+   5          #define somenop {_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_
+             -nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_
+             -nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();}    
+   6          
+   7          #define SlaveAddrW 0xA0
+   8          #define SlaveAddrR 0xA1
+   9          
+  10          //总线引脚定义
+  11          sbit SDA = P2^1;  /* 数据线 */
+  12          sbit SCL = P2^0;  /* 时钟线 */
+  13          
+  14          
+  15          //总线启动条件
+  16          void IIC_Start(void)
+  17          {
+  18   1        SDA = 1;
+  19   1        SCL = 1;
+  20   1        somenop;
+  21   1        SDA = 0;
+  22   1        somenop;
+  23   1        SCL = 0;  
+  24   1      }
+  25          
+  26          //总线停止条件
+  27          void IIC_Stop(void)
+  28          {
+  29   1        SDA = 0;
+  30   1        SCL = 1;
+  31   1        somenop;
+  32   1        SDA = 1;
+  33   1      }
+  34          
+  35          //等待应答
+  36          bit IIC_WaitAck(void)
+  37          {
+  38   1        SDA = 1;
+  39   1        somenop;
+  40   1        SCL = 1;
+  41   1        somenop;
+  42   1        if(SDA)    
+  43   1        {   
+  44   2          SCL = 0;
+  45   2          IIC_Stop();
+  46   2          return 0;
+  47   2        }
+  48   1        else  
+  49   1        { 
+  50   2          SCL = 0;
+  51   2          return 1;
+  52   2        }
+C51 COMPILER V9.56.0.0   IIC                                                               10/04/2017 16:36:44 PAGE 2   
+
+  53   1      }
+  54          
+  55          //通过I2C总线发送数据
+  56          void IIC_SendByte(unsigned char byt)
+  57          {
+  58   1        unsigned char i;
+  59   1        for(i=0;i<8;i++)
+  60   1        {   
+  61   2          if(byt&0x80) 
+  62   2          { 
+  63   3            SDA = 1;
+  64   3          }
+  65   2          else 
+  66   2          {
+  67   3            SDA = 0;
+  68   3          }
+  69   2          somenop;
+  70   2          SCL = 1;
+  71   2          byt <<= 1;
+  72   2          somenop;
+  73   2          SCL = 0;
+  74   2        }
+  75   1      }
+  76          
+  77          //从I2C总线上接收数据
+  78          unsigned char IIC_RecByte(void)
+  79          {
+  80   1        unsigned char da;
+  81   1        unsigned char i;
+  82   1        
+  83   1        for(i=0;i<8;i++)
+  84   1        {   
+  85   2          SCL = 1;
+  86   2          somenop;
+  87   2          da <<= 1;
+  88   2          if(SDA) 
+  89   2          da |= 0x01;
+  90   2          SCL = 0;
+  91   2          somenop;
+  92   2        }
+  93   1        return da;
+  94   1      }
+  95          
+  96          
+  97          uchar AD_read(uchar add)
+  98          {
+  99   1        uchar temp;
+ 100   1        
+ 101   1        IIC_Start();
+ 102   1        IIC_SendByte(0x90);
+ 103   1        IIC_WaitAck();
+ 104   1        IIC_SendByte(add);
+ 105   1        IIC_WaitAck();
+ 106   1        IIC_Stop();
+ 107   1        
+ 108   1        IIC_Start();
+ 109   1        IIC_SendByte(0x91);
+ 110   1        IIC_WaitAck();
+ 111   1        temp=IIC_RecByte();
+ 112   1        IIC_Stop();
+ 113   1        
+ 114   1        temp=temp*0.39;
+C51 COMPILER V9.56.0.0   IIC                                                               10/04/2017 16:36:44 PAGE 3   
+
+ 115   1        
+ 116   1        return temp;
+ 117   1      }
+ 118          
+ 119          
+ 120          uchar EEPROM_read(uchar add)
+ 121          {
+ 122   1        uchar temp;
+ 123   1        
+ 124   1        IIC_Start();
+ 125   1        IIC_SendByte(0XA0);
+ 126   1        IIC_WaitAck();
+ 127   1        IIC_SendByte(add);
+ 128   1        IIC_WaitAck();
+ 129   1        IIC_Stop();
+ 130   1        
+ 131   1        IIC_Start();
+ 132   1        IIC_SendByte(0XA1);
+ 133   1        IIC_WaitAck();
+ 134   1        temp=IIC_RecByte();
+ 135   1        IIC_Stop();
+ 136   1        
+ 137   1        return temp;
+ 138   1      }
+ 139          
+ 140          void EEPROM_write(uchar add,uchar dat)
+ 141          {
+ 142   1      
+ 143   1        IIC_Start();
+ 144   1        IIC_SendByte(0XA0);
+ 145   1        IIC_WaitAck();
+ 146   1        IIC_SendByte(add);
+ 147   1        IIC_WaitAck();
+ 148   1        IIC_SendByte(dat);
+ 149   1        IIC_WaitAck();
+ 150   1        IIC_Stop();
+ 151   1      }
+ 152          
+ 153          
+ 154          
+ 155          
+ 156          
+ 157          
+ 158          
+ 159          
+ 160          
+ 161          
+ 162          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    545    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

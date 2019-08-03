@@ -1,0 +1,64 @@
+C51 COMPILER V9.00   MAIN                                                                  03/22/2019 13:32:46 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN Main.obj
+COMPILER INVOKED BY: C:\Keil_v4\C51\BIN\C51.EXE Use\Main.c BROWSE DEBUG OBJECTEXTEND PRINT(.\Main.lst) OBJECT(Main.obj)
+
+line level    source
+
+   1           #include "Head.h"
+   2          #include "Display.h"
+   3          #include "Key.h"
+   4          #include "ds1302.h"
+   5          #include "onewire.h"
+   6          #include "iic.h"
+   7          
+   8          void InitAll();
+   9          
+  10                  uchar temp;
+  11          void main()
+  12          {
+  13   1      
+  14   1               InitAll();
+  15   1               Write_Time();
+  16   1      //       yi = 1,er = 2,san = 3,si = 4,wu = 5,liu = 6,qi = 7,ba = 8;
+  17   1      //      EEPROM_Write(0x00,23);
+  18   1               while(1)
+  19   1               {
+  20   2                       // Read_Time();
+  21   2               temp = Read_AD(0x03);
+  22   2               yi = temp/100;er = temp/10%10;san = temp%10;
+  23   2                        //yi = Time[0]/10;er = Time[0]%10;
+  24   2      
+  25   2                        //si = Time[1]/10;wu = Time[1]%10;
+  26   2                      
+  27   2                              Key16();
+  28   2                 Display1(yi,er);
+  29   2                 Display2(san,si);
+  30   2                 Display3(wu,liu);
+  31   2                 Display4(qi,ba);
+  32   2                 }
+  33   1      }
+  34          void InitAll()
+  35          {
+  36   1              P2 = 0xa0; P0 = 0x00;
+  37   1              P2 = 0x80; P0 = 0xff;
+  38   1              P2 = 0xc0; P0 = 0xff;
+  39   1              P2 = 0xff; P0 = 0xff;
+  40   1                                              
+  41   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    101    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      1    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

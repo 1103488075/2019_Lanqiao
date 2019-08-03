@@ -1,0 +1,148 @@
+C51 COMPILER V9.00   MAIN                                                                  02/12/2018 17:43:03 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main
+                    -.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include"STC15F2K60S2.h"
+   2          #include"allinit.h"
+   3          #include"smg.h"
+   4          #include"onewire.c"
+   5          #include"iic.c"
+   6          #include"keypad.h"
+   7          //#include"keypad.c"
+   8          
+   9          #define uchar unsigned char
+  10          #define uint unsigned int
+  11          
+  12          
+  13          //函数声明
+  14          void delayms(int ms);
+  15          void self_inspection();
+  16          
+  17          void main(void)
+  18          {
+  19   1        uint Temperature,Temperature_H; //温度
+  20   1        self_inspection();
+  21   1        allinit();
+  22   1        smg_Timer0init();
+  23   1        Write_AT24C02(0x00,0x00);
+  24   1        while(1)
+  25   1        {
+  26   2          key_down();
+  27   2          if(flag200ms == 1)
+  28   2          {
+  29   3            flag200ms = 0;
+  30   3            Temperature = Temper_Read();
+  31   3          }
+  32   2          if(key_value == 4)
+  33   2          {
+  34   3            dspbuff[4] = 3;
+  35   3            dspbuff[5] = 0;
+  36   3            dspbuff[6] = 5;
+  37   3            dspbuff[7] = 0;
+  38   3          }
+  39   2          if(key_value == 5)
+  40   2          {
+  41   3            if(SetFlag5 == 0)
+  42   3            {
+  43   4             dspbuff[4] = Temperature/100;
+  44   4             dspbuff[5] = Temperature%100/10+18;
+  45   4             dspbuff[6] = Temperature%100%10;
+  46   4             dspbuff[7] = 12;
+  47   4            }
+  48   3            else
+  49   3            {
+  50   4             Temperature_H=Temperature*1.8+32;
+  51   4            
+  52   4             dspbuff[4] = Temperature_H/100;
+  53   4             dspbuff[5] = Temperature_H%100/10+18;
+  54   4             dspbuff[6] = Temperature_H%100%10; 
+C51 COMPILER V9.00   MAIN                                                                  02/12/2018 17:43:03 PAGE 2   
+
+  55   4             dspbuff[7] = 15;
+  56   4            }
+  57   3          }
+  58   2          if(key_value == 6)
+  59   2          {
+  60   3            Write_AT24C02(0x00,Temperature);
+  61   3          }
+  62   2          if(key_value == 7)
+  63   2          {
+  64   3            if(SetFlag7 == 0)
+  65   3            {
+  66   4              Temperature = ReadByte_AT24C02(0x00);
+  67   4              dspbuff[4] = Temperature/100;
+  68   4              dspbuff[5] = Temperature%100/10+18;
+  69   4              dspbuff[6] = Temperature%100%10;
+  70   4              dspbuff[7] = 12;
+  71   4            }
+  72   3            else
+  73   3            {
+  74   4              Temperature = ReadByte_AT24C02(0x00);
+  75   4              Temperature_H=Temperature*1.8+32;
+  76   4              dspbuff[4] = Temperature_H/100;
+  77   4              dspbuff[5] = Temperature_H%100/10+18;
+  78   4              dspbuff[6] = Temperature_H%100%10;
+  79   4              dspbuff[7] = 15;
+  80   4            }
+  81   3          }
+  82   2            
+  83   2        }
+  84   1      }
+  85          
+  86          
+  87          void self_inspection()
+  88          {
+  89   1        
+  90   1        P2=0x80;
+  91   1        P0=0x00;//打开所有LED
+  92   1        
+  93   1        P2=0xC0;//打开U6
+  94   1        P0=0xFF;
+  95   1        P2=0xE0;//打开U7
+  96   1        P0=0x00;//打开所有数码管
+  97   1        
+  98   1        delayms(3000);
+  99   1      
+ 100   1        P2=0x80;
+ 101   1        P0=0xFF;//关闭所有LED
+ 102   1        
+ 103   1        P2=0xC0;
+ 104   1        P0=0xFF;
+ 105   1        P2=0xFF;
+ 106   1        P0=0xFF;//关闭所有数码管
+ 107   1        
+ 108   1        P2=0xA0;
+ 109   1        P0=0x40;
+ 110   1        delayms(200);
+ 111   1        P2=0xA0;
+ 112   1        P0=0x00;  
+ 113   1      }
+ 114          void delayms(int ms)// 任意ms延时 存在问题，从何而来 
+ 115          {
+ 116   1        int i,j;
+C51 COMPILER V9.00   MAIN                                                                  02/12/2018 17:43:03 PAGE 3   
+
+ 117   1        for(i=ms;i>0;i--)
+ 118   1        {for(j=845;j>0;j--);}
+ 119   1      }
+*** WARNING C290 IN LINE 106 OF MAIN.C: missing return value
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1328    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     40      10
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      3       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)

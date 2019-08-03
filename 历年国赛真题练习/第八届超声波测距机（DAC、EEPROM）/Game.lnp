@@ -1,0 +1,5 @@
+".\Main.obj",
+".\Key.obj",
+".\Display.obj" 
+TO "Game" 
+RAMSIZE(256) 

@@ -1,0 +1,181 @@
+BL51 BANKED LINKER/LOCATER V6.22                                                        02/26/2018  18:03:44  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
+C:\KEIL_V5\C51\BIN\BL51.EXE .\Objects\main.obj TO .\Objects\IAP15F_project PRINT (.\Listings\IAP15F_project.m51) RAMSIZE
+>>  (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  .\Objects\main.obj (MAIN)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C_STARTUP)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C_INIT)
+
+
+LINK MAP OF MODULE:  .\Objects\IAP15F_project (MAIN)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     0004H     UNIT         ?DT?MAIN
+            IDATA   000CH     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     0013H     UNIT         ?PR?TIMER1_INIT?MAIN
+                    0016H     0005H                  *** GAP ***
+            CODE    001BH     0003H     ABSOLUTE     
+            CODE    001EH     008CH     UNIT         ?C_C51STARTUP
+            CODE    00AAH     006DH     UNIT         ?PR?TIMER1?MAIN
+            CODE    0117H     003AH     UNIT         ?PR?ALLINIT?MAIN
+            CODE    0151H     0010H     UNIT         ?PR?MAIN?MAIN
+            CODE    0161H     000DH     UNIT         ?C_INITSEG
+
+
+
+OVERLAY MAP OF MODULE:   .\Objects\IAP15F_project (MAIN)
+
+
+SEGMENT
+  +--> CALLED SEGMENT
+---------------------
+?C_C51STARTUP
+  +--> ?PR?MAIN?MAIN
+  +--> ?C_INITSEG
+
+?PR?MAIN?MAIN
+  +--> ?PR?ALLINIT?MAIN
+  +--> ?PR?TIMER1_INIT?MAIN
+
+
+
+SYMBOL TABLE OF MODULE:  .\Objects\IAP15F_project (MAIN)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+BL51 BANKED LINKER/LOCATER V6.22                                                      02/26/2018  18:03:44  PAGE 2
+
+
+
+  -------         MODULE        MAIN
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  D:00B0H         PUBLIC        P3
+  D:00C0H         PUBLIC        P4
+  D:00C8H         PUBLIC        P5
+  B:00A8H.7       PUBLIC        EA
+  D:00E8H         PUBLIC        P6
+  D:00F8H         PUBLIC        P7
+  D:00A8H         PUBLIC        IE
+  D:00B8H         PUBLIC        IP
+  D:0009H         SYMBOL        PWMDirection
+  D:00D8H         PUBLIC        CCON
+  C:0151H         PUBLIC        main
+  C:0003H         PUBLIC        Timer1_Init
+  D:0098H         PUBLIC        SCON
+  B:0080H.4       PUBLIC        P04
+  C:00AAH         PUBLIC        Timer1
+  D:0089H         PUBLIC        TMOD
+  D:0088H         PUBLIC        TCON
+  B:0080H.6       PUBLIC        P06
+  B:00A8H.3       PUBLIC        ET1
+  D:008DH         PUBLIC        TH1
+  D:008BH         PUBLIC        TL1
+  B:0088H.6       PUBLIC        TR1
+  D:000AH         SYMBOL        PWMConter
+  C:0117H         PUBLIC        allinit
+  D:000BH         SYMBOL        TimerConter
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          ALLINIT
+  C:0117H         LINE#         3
+  C:0117H         LINE#         4
+  C:0117H         LINE#         5
+  C:011FH         LINE#         6
+  C:0122H         LINE#         7
+  C:0125H         LINE#         9
+  C:012DH         LINE#         10
+  C:012FH         LINE#         11
+  C:0131H         LINE#         12
+  C:0134H         LINE#         14
+  C:013CH         LINE#         15
+  C:013FH         LINE#         16
+  C:0142H         LINE#         17
+  C:014AH         LINE#         18
+  C:014DH         LINE#         19
+  C:0150H         LINE#         20
+  -------         ENDPROC       ALLINIT
+  -------         PROC          TIMER1_INIT
+  C:0003H         LINE#         31
+  C:0003H         LINE#         32
+  C:0003H         LINE#         33
+  C:0006H         LINE#         34
+  C:0009H         LINE#         35
+  C:000CH         LINE#         36
+BL51 BANKED LINKER/LOCATER V6.22                                                      02/26/2018  18:03:44  PAGE 3
+
+
+  C:000FH         LINE#         37
+  C:0011H         LINE#         38
+  C:0013H         LINE#         39
+  C:0015H         LINE#         40
+  -------         ENDPROC       TIMER1_INIT
+  -------         PROC          TIMER1
+  -------         DO            
+  D:0008H         SYMBOL        PWMConter_NOW
+  -------         ENDDO         
+  C:00AAH         LINE#         44
+  C:00AEH         LINE#         47
+  C:00B1H         LINE#         48
+  C:00B4H         LINE#         50
+  C:00BDH         LINE#         51
+  C:00BDH         LINE#         52
+  C:00C0H         LINE#         53
+  C:00CDH         LINE#         54
+  C:00CDH         LINE#         55
+  C:00CFH         LINE#         56
+  C:00D7H         LINE#         57
+  C:00D7H         LINE#         58
+  C:00DAH         LINE#         59
+  C:00DDH         LINE#         60
+  C:00DDH         LINE#         61
+  C:00DDH         LINE#         62
+  C:00EBH         LINE#         63
+  C:00EBH         LINE#         64
+  C:00EDH         LINE#         65
+  C:00F6H         LINE#         66
+  C:00F6H         LINE#         67
+  C:00F9H         LINE#         68
+  C:00FCH         LINE#         69
+  C:00FCH         LINE#         70
+  C:00FCH         LINE#         71
+  C:00FFH         LINE#         72
+  C:00FFH         LINE#         74
+  C:0108H         LINE#         75
+  C:0108H         LINE#         76
+  C:010BH         LINE#         77
+  C:010DH         LINE#         78
+  C:010FH         LINE#         80
+  C:010FH         LINE#         81
+  C:0112H         LINE#         82
+  C:0112H         LINE#         83
+  -------         ENDPROC       TIMER1
+  -------         PROC          MAIN
+  C:0151H         LINE#         10
+  C:0151H         LINE#         11
+  C:0151H         LINE#         12
+  C:0154H         LINE#         13
+  C:0157H         LINE#         14
+  C:015FH         LINE#         15
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        MAIN
+
+Program Size: data=13.0 xdata=0 code=361
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

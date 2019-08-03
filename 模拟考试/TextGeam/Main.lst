@@ -1,0 +1,99 @@
+C51 COMPILER V9.00   MAIN                                                                  03/13/2019 22:07:52 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Main.obj
+COMPILER INVOKED BY: C:\Keil_v4\C51\BIN\C51.EXE ..\历年国赛真题练习\第八届超声波测距机（DAC、EEPROM）\Main.c BROWSE DEBU
+                    -G OBJECTEXTEND PRINT(.\Main.lst) OBJECT(.\Main.obj)
+
+line level    source
+
+   1          #include "Head.h"
+   2          #include "Display.h"
+   3          #include "Key.h"
+   4          #include "ds1302.h"
+   5          #include "iic.h"
+   6          #include "Sonic.h"
+   7           
+   8          
+   9          void InitAll();
+  10          void Timer0Init(void);
+  11          void Timer1Init(void);
+  12          
+  13          uint Distance = 0;
+  14          uint intr = 0;  //timer0 value
+  15          
+  16          bit s_flag = 0; 
+  17          void main()
+  18          {
+  19   1              InitAll();
+  20   1               Timer0Init();
+  21   1               Timer1Init();
+  22   1       
+  23   1      //      yi = 12,er = 11,san = Distance/100,si = Distance/10%10,wu = Distance%10,liu = 11,qi = 0,ba = 0;
+  24   1       
+  25   1              while(1)
+  26   1              {
+  27   2                      Distance = Read_Distance();
+  28   2      
+  29   2                        yi =  Distance/100;er = Distance %100/10;san = Distance%10;
+  30   2      
+  31   2                      Key16();
+  32   2                      Display1(yi,er);
+  33   2                      Display2(san,si);
+  34   2                      Display3(wu,liu);
+  35   2                      Display4(qi,ba);
+  36   2              }
+  37   1      }
+  38          
+  39          void Timer0()   interrupt 1
+  40          {
+  41   1      //      intr++;
+  42   1              if(++intr >= 100)
+  43   1              {
+  44   2                      intr = 0;
+  45   2                      s_flag = 1;
+  46   2              }       
+  47   1      }
+  48          void Timer0Init(void)           //2毫秒@11.0592MHz
+  49          {
+  50   1              AUXR |= 0x80;           //定时器时钟1T模式
+  51   1              TMOD &= 0xF0;           //设置定时器模式
+  52   1              TL0 = 0x9A;             //设置定时初值
+  53   1              TH0 = 0xA9;             //设置定时初值
+  54   1              TF0 = 0;                //清除TF0标志
+C51 COMPILER V9.00   MAIN                                                                  03/13/2019 22:07:52 PAGE 2   
+
+  55   1              TR0 = 1;                //定时器0开始计时
+  56   1              ET0 = 1;
+  57   1              EA = 1;
+  58   1      }
+  59          void Timer1Init(void)
+  60          {
+  61   1              AUXR |= 0x40;
+  62   1              TMOD &= 0x0f;
+  63   1      }
+  64          
+  65          void InitAll()
+  66          {
+  67   1              P2 = 0xa0; P0 = 0x00;
+  68   1              P2 = 0x80; P0 = 0xff;
+  69   1              P2 = 0xc0; P0 = 0xff;
+  70   1              P2 = 0xff; P0 = 0xff;
+  71   1      
+  72   1      
+  73   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    184    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      4    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      1    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

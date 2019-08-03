@@ -1,0 +1,3 @@
+".\Objects\main.obj" 
+TO ".\Objects\function" 
+PRINT(".\Listings\function.m51") RAMSIZE(256) 

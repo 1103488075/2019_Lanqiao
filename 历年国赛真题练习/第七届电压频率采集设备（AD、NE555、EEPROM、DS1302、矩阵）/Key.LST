@@ -1,0 +1,175 @@
+C51 COMPILER V9.00   KEY                                                                   03/17/2019 21:00:47 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE KEY
+OBJECT MODULE PLACED IN Key.OBJ
+COMPILER INVOKED BY: C:\Keil_v4\C51\BIN\C51.EXE Key.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include "Key.h"
+   2          #include "Display.h"
+   3          #include "ds1302.h"
+   4          
+   5          uchar value = 0;
+   6          uchar S5 = 0,S4 = 0;
+   7          bit S7 = 0,S6 = 0;
+   8          
+   9          void Key16()
+  10          {
+  11   1              P42 = 0; P44 = 0; P3 = 0x0f;
+  12   1      
+  13   1              if(P3 != 0x0f)
+  14   1              {
+  15   2                      Delay2ms();
+  16   2                      if(P3 != 0x0f)
+  17   2                      {
+  18   3                              
+  19   3                              P42 = 1; P44 = 1; P3 = 0x30;
+  20   3      
+  21   3                              if((P3 == 0x30)&&(P42 == 1)&&(P44 == 0))
+  22   3                              value = 0;
+  23   3                              else if((P3 == 0x30)&&(P42 == 0)&&(P44 == 1))
+  24   3                              value = 1;
+  25   3                              else if((P3 == 0x10)&&(P42 == 1)&&(P44 == 1))
+  26   3                              value = 2;
+  27   3                              else if((P3 == 0x20)&&(P42 == 1)&&(P44 == 1))
+  28   3                              value = 3;
+  29   3      
+  30   3                              P42 = 0; P44 = 0; P3 = 0x0f;
+  31   3      
+  32   3                              switch(P3)
+  33   3                              {
+  34   4                                      case(0x0e):value += 0;break;
+  35   4                                      case(0x0d):value += 4;break;
+  36   4                                      case(0x0b):value += 8;break;
+  37   4                                      case(0x07):value += 12;break;
+  38   4                              }
+  39   3      
+  40   3      
+  41   3                               switch(value)
+  42   3                              {
+  43   4                                      case(0):        
+  44   4                                      if(S7 == 0){S7 = 1;}else if(S7 == 1){S7 = 0;}break;
+  45   4                                      case(4):
+  46   4                                      if(S6 == 0){S6 = 1;}else if(S6 == 1){S6 = 0;};break;
+  47   4                                      case(8):S5 = 4;break;
+  48   4      
+  49   4                                      case(12): //seting interface
+  50   4                                              if(S7 == 1)
+  51   4                                              {
+  52   5                                                      if(S4 == 0)
+  53   5                                                      {S4 = 1;}
+  54   5                                                      else if(S4 == 1)
+  55   5                                                      S4 = 2;
+C51 COMPILER V9.00   KEY                                                                   03/17/2019 21:00:47 PAGE 2   
+
+  56   5                                                      else if(S4 == 2)
+  57   5                                                      S4 = 3;
+  58   5                                                      else if(S4 == 3)
+  59   5                                                      {S4 = 0;}
+  60   5                                              }
+  61   4                                              else if(S6 == 1)
+  62   4                                              {
+  63   5                                                      if(S4 == 0)
+  64   5                                                      {S4 = 1;}
+  65   5                                                      else if(S4 == 1)
+  66   5                                                      S4 = 2;
+  67   5                                                      else if(S4 == 2)
+  68   5                                                      S4 = 1; 
+  69   5                                              }
+  70   4                                              
+  71   4                                              
+  72   4                                      ;break;
+  73   4      
+  74   4                                      case(1):        //key ++
+  75   4                                      if(S7 == 1)
+  76   4                                      {
+  77   5                                              if(S4 == 1)
+  78   5                                              {
+  79   6                                                      Time[2]++;
+  80   6                                                      Write_Time(); 
+  81   6                                              }
+  82   5                                              else if(S4 == 2)
+  83   5                                              {
+  84   6                                                      Time[1]++;
+  85   6                                                      Write_Time();
+  86   6                                               
+  87   6                                              }
+  88   5                                              else if(S4 == 3)
+  89   5                                              {
+  90   6                                              Time[0]++;
+  91   6                                              Write_Time();
+  92   6                                              }
+  93   5                                      }
+  94   4                                      else if(S6 == 1)
+  95   4                                      {
+  96   5                                              if(S4 == 1)
+  97   5                                              {
+  98   6                                                      VMAX = VMAX + 5;        
+  99   6                                              }
+ 100   5                                              else if(S4 == 2)
+ 101   5                                              {
+ 102   6                                                      VMIN = VMIN + 5;
+ 103   6                                              }
+ 104   5                                      }
+ 105   4                                      ;break;
+ 106   4                                                              
+ 107   4                                      case(5):  //key --
+ 108   4                                      if(S7 == 1)
+ 109   4                                      {
+ 110   5                                              if(S4 == 1)
+ 111   5                                              {
+ 112   6                                                      Time[2]--;
+ 113   6                                                      Write_Time(); 
+ 114   6                                              }
+ 115   5                                              else if(S4 == 2)
+ 116   5                                              {
+ 117   6                                                      Time[1]--;
+C51 COMPILER V9.00   KEY                                                                   03/17/2019 21:00:47 PAGE 3   
+
+ 118   6                                                      Write_Time();
+ 119   6                                               
+ 120   6                                              }
+ 121   5                                              else if(S4 == 3)
+ 122   5                                              {
+ 123   6                                              Time[0]--;
+ 124   6                                              Write_Time();
+ 125   6                                              }
+ 126   5                                      }
+ 127   4                                      else if(S6 == 1)
+ 128   4                                      {
+ 129   5                                              if(S4 == 1)
+ 130   5                                              {
+ 131   6                                                      VMAX = VMAX - 5;        
+ 132   6                                              }
+ 133   5                                              else if(S4 == 2)
+ 134   5                                              {
+ 135   6                                                      VMIN = VMIN - 5;
+ 136   6                                              }
+ 137   5                                      };break;
+ 138   4      //                              case(9):key = 5;break;
+ 139   4      //                              case(13):key = 7;break;
+ 140   4                              }
+ 141   3               
+ 142   3                               
+ 143   3                               
+ 144   3                              
+ 145   3                               while(P3 != 0x0f);
+ 146   3                      }
+ 147   2              }
+ 148   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    406    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      3    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      2    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

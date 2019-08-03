@@ -1,0 +1,129 @@
+C51 COMPILER V9.00   MAIN                                                                  03/16/2019 12:56:52 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN Main.OBJ
+COMPILER INVOKED BY: C:\Keil_v4\C51\BIN\C51.EXE Main.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include "Head.h"
+   2          #include "Display.h"
+   3          #include "key.h"
+   4          #include "iic.h"
+   5          #include "onewire.h"
+   6          
+   7          void InitAll();
+   8          void Timer1Init(void);
+   9          
+  10          double Voltage = 0;
+  11          uint Khz = 32;//频率
+  12          uint sum1;
+  13          float sum2;//temperature
+  14          uchar fazhi = 10;
+  15          
+  16          uint tt;
+  17          bit flag = 0;
+  18           
+  19          
+  20          
+  21          uchar addr;
+  22          void main()
+  23          {
+  24   1              InitAll();
+  25   1              Timer1Init();
+  26   1              while(1)
+  27   1              {
+  28   2                       P2 = 0x80; P0 = 0xff;
+  29   2                       if(S4 == 1)     //voltage
+  30   2                      {
+  31   3                               P2 = 0x80; P0 = 0xfe;
+  32   3                              sum1 = Read_18B20();  //read temperature int  
+  33   3                              sum2 =   Read_18B201(); //read temperature float
+  34   3                              yi = 15;er = 11;san = 11;si = 11;
+  35   3                              wu = sum1 / 10; liu = sum1 % 10; 
+  36   3                              qi = (uint)sum2 / 10; ba = (uint)sum2 % 10;
+  37   3                              jiu = 12; addr = 0x20;
+  38   3      
+  39   3      
+  40   3                      }
+  41   2                      else if(S4 == 2)   //khz
+  42   2                      {
+  43   3                               P2 = 0x80; P0 = 0xfd;
+  44   3                              Voltage = Read_AD(0x03);
+  45   3                              Voltage = Voltage*10;
+  46   3                              yi = 13;er = 11;san = 11;si = 11;wu = 11;
+  47   3                              liu = 11; qi = (uint)Voltage/10;ba = (uint)Voltage%10;jiu = 12;addr = 0x40;
+  48   3                      }
+  49   2                      else if(S4 == 3)  //temperature
+  50   2                      {
+  51   3                               P2 = 0x80; P0 = 0xfb;
+  52   3                              yi = 14;er = 11;san = 11;si = Khz/10;wu = Khz%10;
+  53   3                              liu = 0; qi = 0;ba = 0;jiu = 11;addr = 0xff;
+  54   3                      }
+  55   2                      if(S7 == 1)
+C51 COMPILER V9.00   MAIN                                                                  03/16/2019 12:56:52 PAGE 2   
+
+  56   2                      {
+  57   3                              yi = 17;er = 11;san = 11;si = 11;wu = 11;
+  58   3                              liu = 11; qi = fazhi/10;ba = fazhi%10;
+  59   3                              jiu = 12;addr = 0x40;
+  60   3                      }
+  61   2                      if(Voltage > fazhi)
+  62   2                      {
+  63   3                              if(flag == 0)
+  64   3                              {P2 = 0x80; P0 = 0x7f;}
+  65   3                              else if(flag == 1)
+  66   3                              {P2 = 0x80; P0 = 0xff;}
+  67   3                      }
+  68   2      
+  69   2                      Key();
+  70   2                      Display1(yi,er);
+  71   2                      Display2(san,si);
+  72   2                      Display3(wu,liu);
+  73   2                      Display4(qi,ba);
+  74   2                      Display5(addr,jiu);      //display location and "."
+  75   2              }
+  76   1      }
+  77          void Timer0() interrupt 1
+  78          {
+  79   1              tt++;
+  80   1              if(tt >= 100)
+  81   1              {
+  82   2                      tt = 0;
+  83   2                      flag = ~flag;
+  84   2              }       
+  85   1      }
+  86          void Timer1Init(void)           //2毫秒@11.0592MHz
+  87          {
+  88   1              AUXR |= 0x40;           //定时器时钟1T模式
+  89   1              TMOD &= 0x0F;           //设置定时器模式
+  90   1              TL1 = 0x9A;             //设置定时初值
+  91   1              TH1 = 0xA9;             //设置定时初值
+  92   1              TF1 = 0;                //清除TF1标志
+  93   1              TR1 = 1;                //定时器1开始计时
+  94   1              ET0 = 1;
+  95   1              EA = 1;
+  96   1      }
+  97          
+  98          void InitAll()
+  99          {
+ 100   1              P2 = 0xa0; P0 = 0x00;
+ 101   1              P2 = 0x80; P0 = 0xff;
+ 102   1              P2 = 0xc0; P0 = 0xff;
+ 103   1              P2 = 0xff; P0 = 0xff;
+ 104   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    491    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     16    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      1    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

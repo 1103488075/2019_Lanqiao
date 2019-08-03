@@ -1,0 +1,7 @@
+"Key.obj",
+"Display.obj",
+"Main.obj",
+"ds1302.obj",
+"onewire.obj" 
+TO "TimeMain" 
+RAMSIZE(256) 

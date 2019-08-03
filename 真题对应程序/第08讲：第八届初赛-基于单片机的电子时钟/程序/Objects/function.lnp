@@ -1,0 +1,4 @@
+".\Objects\main.obj",
+".\Objects\deputy.obj" 
+TO ".\Objects\function" 
+PRINT(".\Listings\function.m51") RAMSIZE(256) 

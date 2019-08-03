@@ -1,0 +1,7 @@
+".\Display.obj",
+".\iic.obj",
+".\Key.obj",
+".\Main.obj",
+".\onewire.obj" 
+TO "Text" 
+RAMSIZE(256) 

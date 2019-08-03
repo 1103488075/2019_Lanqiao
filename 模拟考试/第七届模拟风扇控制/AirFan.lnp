@@ -1,0 +1,8 @@
+"Display.obj",
+"Key.obj",
+"Main.obj",
+"onewire.obj",
+"ds1302.obj",
+"iic.obj" 
+TO "AirFan" 
+RAMSIZE(256) 

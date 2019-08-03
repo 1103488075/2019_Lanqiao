@@ -1,0 +1,60 @@
+C51 COMPILER V9.00   MAIN                                                                  03/23/2019 15:21:57 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN Main.OBJ
+COMPILER INVOKED BY: C:\Keil_v4\C51\BIN\C51.EXE Main.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include "Head.h"
+   2          #include "Display.h"
+   3          #include "Key.h"
+   4          #include "ds1302.h"
+   5          #include "iic.h"
+   6          #include "onewire.h"
+   7          
+   8          void InitAll();
+   9          uchar temp ;
+  10          
+  11          void main()
+  12          {
+  13   1              InitAll();
+  14   1              Write_Time();
+  15   1      
+  16   1      //      Write_EEPROM(0x00,24);
+  17   1              while(1)
+  18   1              {
+  19   2      //              Read_Time();
+  20   2      //              temp = Read_18B20();
+  21   2                      yi = temp/100;er = temp/10%10;san = temp%10;
+  22   2               
+  23   2                      Key();
+  24   2                      Display1(yi,er);
+  25   2                      Display2(san,si);
+  26   2                      Display3(wu,liu);
+  27   2                      Display4(qi,ba);        
+  28   2              }
+  29   1              
+  30   1      }
+  31          void InitAll()
+  32          {
+  33   1              P2 = 0xa0; P0 = 0x00;
+  34   1              P2 = 0x80; P0 = 0xff;
+  35   1              P2 = 0xc0; P0 = 0xff;
+  36   1              P2 = 0xff; P0 = 0xff;
+  37   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     94    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      1    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

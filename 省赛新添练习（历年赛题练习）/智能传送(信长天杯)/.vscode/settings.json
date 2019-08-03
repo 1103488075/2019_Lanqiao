@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "scan_key.h": "c",
+        "display.h": "c",
+        "hread.h": "c"
+    }
+}

@@ -1,0 +1,369 @@
+C51 COMPILER V9.54   DEPUTY                                                                10/21/2018 15:44:24 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE DEPUTY
+OBJECT MODULE PLACED IN .\Objects\deputy.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE deputy.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\de
+                    -puty.lst) TABS(2) OBJECT(.\Objects\deputy.obj)
+
+line level    source
+
+   1          #include<STC15F2K60S2.H>
+   2          #include "DEPUTY.H"
+   3          #include <intrins.h>
+   4          
+   5          sbit SCK=P1^7;    
+   6          sbit SDA=P2^3;    
+   7          sbit RST = P1^3;   // DS1302复位  
+   8          
+   9          sbit DQ = P1^4;  //单总线接口
+  10          
+  11          unsigned char shijian[]={50,59,23,0,0,0,0};
+  12          
+  13          void Write_Ds1302_Byte(unsigned  char temp) 
+  14          {
+  15   1        unsigned char i;
+  16   1        for (i=0;i<8;i++)       
+  17   1        { 
+  18   2          SCK=0;
+  19   2          SDA=temp&0x01;
+  20   2          temp>>=1; 
+  21   2          SCK=1;
+  22   2        }
+  23   1      }   
+  24          
+  25          void Write_Ds1302( unsigned char address,unsigned char dat )     
+  26          {
+  27   1        RST=0;
+  28   1        _nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();
+  29   1        SCK=0;
+  30   1        _nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();
+  31   1        RST=1;  
+  32   1        _nop_(); _nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_(); 
+  33   1        Write_Ds1302_Byte(address); 
+  34   1        Write_Ds1302_Byte((dat/10<<4)|(dat%10));  ///////////////////////////////////////////////// 
+  35   1        RST=0; 
+  36   1      }
+  37          
+  38          unsigned char Read_Ds1302 ( unsigned char address )
+  39          {
+  40   1        unsigned char i,temp=0x00,dat1,dat2;/////////////////////////////////////
+  41   1        RST=0;
+  42   1        _nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();
+  43   1        SCK=0;
+  44   1        _nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();
+  45   1        RST=1;
+  46   1        _nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();
+  47   1        Write_Ds1302_Byte(address);
+  48   1        for (i=0;i<8;i++)   
+  49   1        {   
+  50   2          SCK=0;
+  51   2          temp>>=1; 
+  52   2          if(SDA)
+  53   2          temp|=0x80; 
+  54   2          SCK=1;
+C51 COMPILER V9.54   DEPUTY                                                                10/21/2018 15:44:24 PAGE 2   
+
+  55   2        } 
+  56   1        RST=0;
+  57   1        _nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();
+  58   1        RST=0;
+  59   1        SCK=0;
+  60   1        _nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();
+  61   1        SCK=1;
+  62   1        _nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();
+  63   1        SDA=0;
+  64   1        _nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();
+  65   1        SDA=1;
+  66   1        _nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();
+  67   1        
+  68   1        dat1=temp/16;
+  69   1        dat2=temp%16;
+  70   1        temp=dat1*10+dat2;
+  71   1        
+  72   1        return (temp);      
+  73   1      }
+  74          
+  75          void DS_init(void)
+  76          {
+  77   1        unsigned char i,add;
+  78   1        add=0x80;
+  79   1        Write_Ds1302(0x8e,0x00);
+  80   1        for(i=0;i<7;i++)
+  81   1        {
+  82   2          Write_Ds1302(add,shijian[i]);
+  83   2          add=add+2;
+  84   2        }
+  85   1        Write_Ds1302(0x8e,0x80);
+  86   1      }
+  87          
+  88          
+  89          void DS_get(void)
+  90          {
+  91   1        unsigned char i,add;
+  92   1        add=0x81;
+  93   1        Write_Ds1302(0x8e,0x00);
+  94   1        for(i=0;i<7;i++)
+  95   1        {
+  96   2          shijian[i]=Read_Ds1302(add);
+  97   2          add=add+2;
+  98   2        }
+  99   1        Write_Ds1302(0x8e,0x80);
+ 100   1      }
+ 101          
+ 102          /**************************************DS18B20驱动********************************************************
+             -***/
+ 103          
+ 104          //单总线延时函数
+ 105          void Delay_OneWire(unsigned int t)  
+ 106          {
+ 107   1        while(t--);
+ 108   1      }
+ 109          
+ 110          //通过单总线向DS18B20写一个字节
+ 111          void Write_DS18B20(unsigned char dat)
+ 112          {
+ 113   1        unsigned char i;
+ 114   1        for(i=0;i<8;i++)
+ 115   1        {
+C51 COMPILER V9.54   DEPUTY                                                                10/21/2018 15:44:24 PAGE 3   
+
+ 116   2          DQ = 0;
+ 117   2          DQ = dat&0x01;
+ 118   2          Delay_OneWire(50);
+ 119   2          DQ = 1;
+ 120   2          dat >>= 1;
+ 121   2        }
+ 122   1        Delay_OneWire(50);
+ 123   1      }
+ 124          
+ 125          //从DS18B20读取一个字节
+ 126          unsigned char Read_DS18B20(void)
+ 127          {
+ 128   1        unsigned char i;
+ 129   1        unsigned char dat;
+ 130   1        
+ 131   1        for(i=0;i<8;i++)
+ 132   1        {
+ 133   2          DQ = 0;
+ 134   2          dat >>= 1;
+ 135   2          DQ = 1;
+ 136   2          if(DQ)
+ 137   2          {
+ 138   3            dat |= 0x80;
+ 139   3          }     
+ 140   2          Delay_OneWire(50);
+ 141   2        }
+ 142   1        return dat;
+ 143   1      }
+ 144          
+ 145          //DS18B20设备初始化
+ 146          bit init_ds18b20(void)
+ 147          {
+ 148   1          bit initflag = 0;
+ 149   1          
+ 150   1          DQ = 1;
+ 151   1          Delay_OneWire(120);
+ 152   1          DQ = 0;
+ 153   1          Delay_OneWire(800);
+ 154   1          DQ = 1;
+ 155   1          Delay_OneWire(100); 
+ 156   1          initflag = DQ;     
+ 157   1          Delay_OneWire(50);
+ 158   1        
+ 159   1          return initflag;
+ 160   1      }
+ 161          
+ 162          unsigned char Tempget(void)
+ 163          {
+ 164   1        unsigned char low,high,temp;
+ 165   1        init_ds18b20();
+ 166   1        Write_DS18B20(0XCC);
+ 167   1        Write_DS18B20(0X44);
+ 168   1        Delay_OneWire(200); 
+ 169   1        
+ 170   1        init_ds18b20();
+ 171   1        Write_DS18B20(0XCC);
+ 172   1        Write_DS18B20(0XBE);
+ 173   1      
+ 174   1        low=Read_DS18B20();
+ 175   1        high=Read_DS18B20();
+ 176   1        
+ 177   1        temp=high<<4;
+C51 COMPILER V9.54   DEPUTY                                                                10/21/2018 15:44:24 PAGE 4   
+
+ 178   1        temp|=(low>>4);
+ 179   1        
+ 180   1        return temp;
+ 181   1      }
+ 182          
+ 183          /**************************************IIC驱动***********************************************************/
+ 184          
+ 185          #define somenop {_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_
+             -nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_
+             -nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();}    
+ 186          
+ 187          #define SlaveAddrW 0xA0
+ 188          #define SlaveAddrR 0xA1
+ 189          
+ 190          //总线引脚定义
+ 191          sbit SD = P2^1;  /* 数据线 */
+ 192          sbit SCL = P2^0;  /* 时钟线 */
+ 193          
+ 194          
+ 195          //总线启动条件
+ 196          void IIC_Start(void)
+ 197          {
+ 198   1        SD = 1;
+ 199   1        SCL = 1;
+ 200   1        somenop;
+ 201   1        SD = 0;
+ 202   1        somenop;
+ 203   1        SCL = 0;  
+ 204   1      }
+ 205          
+ 206          //总线停止条件
+ 207          void IIC_Stop(void)
+ 208          {
+ 209   1        SD = 0;
+ 210   1        SCL = 1;
+ 211   1        somenop;
+ 212   1        SD = 1;
+ 213   1      }
+ 214          
+ 215          //等待应答
+ 216          bit IIC_WaitAck(void)
+ 217          {
+ 218   1        SD = 1;
+ 219   1        somenop;
+ 220   1        SCL = 1;
+ 221   1        somenop;
+ 222   1        if(SD)    
+ 223   1        {   
+ 224   2          SCL = 0;
+ 225   2          IIC_Stop();
+ 226   2          return 0;
+ 227   2        }
+ 228   1        else  
+ 229   1        { 
+ 230   2          SCL = 0;
+ 231   2          return 1;
+ 232   2        }
+ 233   1      }
+ 234          
+ 235          //通过I2C总线发送数据
+ 236          void IIC_SendByte(unsigned char byt)
+ 237          {
+C51 COMPILER V9.54   DEPUTY                                                                10/21/2018 15:44:24 PAGE 5   
+
+ 238   1        unsigned char i;
+ 239   1        for(i=0;i<8;i++)
+ 240   1        {   
+ 241   2          if(byt&0x80) 
+ 242   2          { 
+ 243   3            SD = 1;
+ 244   3          }
+ 245   2          else 
+ 246   2          {
+ 247   3            SD = 0;
+ 248   3          }
+ 249   2          somenop;
+ 250   2          SCL = 1;
+ 251   2          byt <<= 1;
+ 252   2          somenop;
+ 253   2          SCL = 0;
+ 254   2        }
+ 255   1      }
+ 256          
+ 257          //从I2C总线上接收数据
+ 258          unsigned char IIC_RecByte(void)
+ 259          {
+ 260   1        unsigned char da;
+ 261   1        unsigned char i;
+ 262   1        
+ 263   1        for(i=0;i<8;i++)
+ 264   1        {   
+ 265   2          SCL = 1;
+ 266   2          somenop;
+ 267   2          da <<= 1;
+ 268   2          if(SD) 
+ 269   2          da |= 0x01;
+ 270   2          SCL = 0;
+ 271   2          somenop;
+ 272   2        }
+ 273   1        return da;
+ 274   1      }
+ 275          
+ 276          
+ 277          uchar AD_read(uchar add)
+ 278          {
+ 279   1        float temp;
+ 280   1        
+ 281   1        IIC_Start();
+ 282   1        IIC_SendByte(0x90);
+ 283   1        IIC_WaitAck();
+ 284   1        IIC_SendByte(add);
+ 285   1        IIC_WaitAck();
+ 286   1        IIC_Stop();
+ 287   1        
+ 288   1        IIC_Start();
+ 289   1        IIC_SendByte(0x91);
+ 290   1        IIC_WaitAck();
+ 291   1        temp=IIC_RecByte();
+ 292   1        IIC_Stop();
+ 293   1        
+ 294   1      //  temp=temp*0.39;
+ 295   1      //  temp=temp*3.92;
+ 296   1        return temp;
+ 297   1      }
+ 298          
+ 299          
+C51 COMPILER V9.54   DEPUTY                                                                10/21/2018 15:44:24 PAGE 6   
+
+ 300          uchar EEPROM_read(uchar add)
+ 301          {
+ 302   1        uchar temp;
+ 303   1        
+ 304   1        IIC_Start();
+ 305   1        IIC_SendByte(0XA0);
+ 306   1        IIC_WaitAck();
+ 307   1        IIC_SendByte(add);
+ 308   1        IIC_WaitAck();
+ 309   1        IIC_Stop();
+ 310   1        
+ 311   1        IIC_Start();
+ 312   1        IIC_SendByte(0XA1);
+ 313   1        IIC_WaitAck();
+ 314   1        temp=IIC_RecByte();
+ 315   1        IIC_Stop();
+ 316   1        
+ 317   1        return temp;
+ 318   1      }
+ 319          
+ 320          void EEPROM_write(uchar add,uchar dat)
+ 321          {
+ 322   1      
+ 323   1        IIC_Start();
+ 324   1        IIC_SendByte(0XA0);
+ 325   1        IIC_WaitAck();
+ 326   1        IIC_SendByte(add);
+ 327   1        IIC_WaitAck();
+ 328   1        IIC_SendByte(dat);
+ 329   1        IIC_WaitAck();
+ 330   1        IIC_Stop();
+ 331   1      }
+ 332          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    970    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      7    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,343 @@
+C51 COMPILER V9.56.0.0   MAIN                                                              10/03/2017 17:06:36 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main
+                    -.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include<STC15F2K60S2.H>
+   2          #include "intrins.h"
+   3          
+   4          #define uchar unsigned char
+   5          #define uint unsigned int
+   6          
+   7          #define somenop {_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_
+             -nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_
+             -nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();_nop_();}    
+   8          
+   9          #define SlaveAddrW 0xA0
+  10          #define SlaveAddrR 0xA1
+  11          
+  12          //总线引脚定义
+  13          sbit SDA = P2^1;  /* 数据线 */
+  14          sbit SCL = P2^0;  /* 时钟线 */
+  15            
+  16          uchar code tab[]={0xc0,0xf9,0xa4,0xb0,0x99,0x92,0x82,0xf8,0x80,0x90,0xbf,0xff}; //0100 0000  
+  17          uchar code dot[]={0x40,0x79,0x24,0x30,0x19,0x12,0x20,0x78,0x00,0x10};
+  18          uchar yi,er,san,si,wu,liu,qi,ba;
+  19          
+  20          uchar guang;
+  21          uchar tt;
+  22          uint ML_10; //9999
+  23          uint money;
+  24          
+  25          void allinit(void);
+  26          void delayms(uint ms);
+  27          void keyscan(void);
+  28          void display1(uchar yi,uchar er);
+  29          void display2(uchar san,uchar si);
+  30          void display3(uchar wu,uchar liu);
+  31          void display4(uchar qi,uchar ba);
+  32          void Timer0Init(void);  
+  33          
+  34          //函数声明
+  35          void IIC_Start(void); 
+  36          void IIC_Stop(void);  
+  37          void IIC_SendByte(unsigned char byt); 
+  38          bit IIC_WaitAck(void);  
+  39          unsigned char IIC_RecByte(void);
+  40          uchar IIC_read(uchar add);
+  41          
+  42          
+  43          void main(void)
+  44          {
+  45   1        allinit();
+  46   1        Timer0Init();
+  47   1        yi=11;er=0;san=5;si=0;wu=0;liu=1;qi=0;ba=0;
+  48   1        while(1)
+  49   1        {
+  50   2          guang=IIC_read(0x01);
+  51   2          if(guang<64)
+  52   2          {
+C51 COMPILER V9.56.0.0   MAIN                                                              10/03/2017 17:06:36 PAGE 2   
+
+  53   3            P2=0X80;P0=0XFE;
+  54   3          }
+  55   2          else 
+  56   2          {
+  57   3            P2=0X80;P0=0XFF;
+  58   3          }
+  59   2          
+  60   2          keyscan();
+  61   2          display1(yi,er);
+  62   2          display2(san,si);
+  63   2          display3(wu,liu);
+  64   2          display4(qi,ba);
+  65   2        }
+  66   1      }
+  67          
+  68          void Timer0Init(void)   //5毫秒@11.0592MHz
+  69          {
+  70   1        AUXR |= 0x80;   //定时器时钟1T模式
+  71   1        TMOD &= 0xF0;   //设置定时器模式
+  72   1        TL0 = 0x00;   //设置定时初值
+  73   1        TH0 = 0x28;   //设置定时初值
+  74   1        TF0 = 0;    //清除TF0标志
+  75   1        TR0 = 1;    //定时器0开始计时
+  76   1      }
+  77          
+  78          void timer0() interrupt 1
+  79          {
+  80   1        tt++;
+  81   1        if(tt==20)
+  82   1        {
+  83   2          tt=0;
+  84   2          ML_10=ML_10+1;
+  85   2          wu=ML_10/1000;liu=ML_10%1000/100;qi=ML_10%100/10;ba=ML_10%10;
+  86   2          if(ML_10>=9999)
+  87   2          {
+  88   3            ET0=0;EA=0;
+  89   3            P2=0XA0;P0=0X00;
+  90   3            money=ML_10*0.5;
+  91   3            wu=money/1000;liu=money%1000/100;qi=money%100/10;ba=money%10;
+  92   3            ML_10=0;
+  93   3          }
+  94   2        }
+  95   1      }
+  96          
+  97          
+  98          void keyscan(void)
+  99          {
+ 100   1        if(P30==0)
+ 101   1        {
+ 102   2          delayms(5);
+ 103   2          if(P30==0)
+ 104   2          {
+ 105   3            wu=0;liu=0;qi=0;ba=0;
+ 106   3            P2=0XA0;P0=0X10;
+ 107   3            ET0=1;EA=1;
+ 108   3          }
+ 109   2          while(!P30);
+ 110   2        }
+ 111   1        else if(P31==0)
+ 112   1        {
+ 113   2          delayms(5);
+ 114   2          if(P31==0)
+C51 COMPILER V9.56.0.0   MAIN                                                              10/03/2017 17:06:36 PAGE 3   
+
+ 115   2          {
+ 116   3            ET0=0;EA=0;
+ 117   3            P2=0XA0;P0=0X00;
+ 118   3            money=ML_10*0.5;
+ 119   3            wu=money/1000;liu=money%1000/100;qi=money%100/10;ba=money%10;
+ 120   3            ML_10=0;
+ 121   3          }
+ 122   2          while(!P31);
+ 123   2        }
+ 124   1      }
+ 125          
+ 126          /**************************************IIC驱动程序*****************************************************/
+ 127          //总线启动条件
+ 128          void IIC_Start(void)
+ 129          {
+ 130   1        SDA = 1;
+ 131   1        SCL = 1;
+ 132   1        somenop;
+ 133   1        SDA = 0;
+ 134   1        somenop;
+ 135   1        SCL = 0;  
+ 136   1      }
+ 137          
+ 138          //总线停止条件
+ 139          void IIC_Stop(void)
+ 140          {
+ 141   1        SDA = 0;
+ 142   1        SCL = 1;
+ 143   1        somenop;
+ 144   1        SDA = 1;
+ 145   1      }
+ 146          
+ 147          //等待应答
+ 148          bit IIC_WaitAck(void)
+ 149          {
+ 150   1        SDA = 1;
+ 151   1        somenop;
+ 152   1        SCL = 1;
+ 153   1        somenop;
+ 154   1        if(SDA)    
+ 155   1        {   
+ 156   2          SCL = 0;
+ 157   2          IIC_Stop();
+ 158   2          return 0;
+ 159   2        }
+ 160   1        else  
+ 161   1        { 
+ 162   2          SCL = 0;
+ 163   2          return 1;
+ 164   2        }
+ 165   1      }
+ 166          
+ 167          //通过I2C总线发送数据
+ 168          void IIC_SendByte(unsigned char byt)
+ 169          {
+ 170   1        unsigned char i;
+ 171   1        for(i=0;i<8;i++)
+ 172   1        {   
+ 173   2          if(byt&0x80) 
+ 174   2          { 
+ 175   3            SDA = 1;
+ 176   3          }
+C51 COMPILER V9.56.0.0   MAIN                                                              10/03/2017 17:06:36 PAGE 4   
+
+ 177   2          else 
+ 178   2          {
+ 179   3            SDA = 0;
+ 180   3          }
+ 181   2          somenop;
+ 182   2          SCL = 1;
+ 183   2          byt <<= 1;
+ 184   2          somenop;
+ 185   2          SCL = 0;
+ 186   2        }
+ 187   1      }
+ 188          
+ 189          //从I2C总线上接收数据
+ 190          unsigned char IIC_RecByte(void)
+ 191          {
+ 192   1        unsigned char da;
+ 193   1        unsigned char i;
+ 194   1        
+ 195   1        for(i=0;i<8;i++)
+ 196   1        {   
+ 197   2          SCL = 1;
+ 198   2          somenop;
+ 199   2          da <<= 1;
+ 200   2          if(SDA) 
+ 201   2          da |= 0x01;
+ 202   2          SCL = 0;
+ 203   2          somenop;
+ 204   2        }
+ 205   1        return da;
+ 206   1      }
+ 207          
+ 208          uchar IIC_read(uchar add)
+ 209          {
+ 210   1        uchar temp;
+ 211   1        
+ 212   1        IIC_Start();
+ 213   1        IIC_SendByte(0x90);
+ 214   1        IIC_WaitAck();
+ 215   1        IIC_SendByte(add);
+ 216   1        IIC_WaitAck();
+ 217   1        IIC_Stop();
+ 218   1        
+ 219   1        IIC_Start();
+ 220   1        IIC_SendByte(0x91);
+ 221   1        IIC_WaitAck();
+ 222   1        temp=IIC_RecByte();
+ 223   1        IIC_Stop();
+ 224   1        
+ 225   1        return temp;
+ 226   1      }
+ 227          
+ 228          void allinit(void)
+ 229          {
+ 230   1        P2=0XA0;
+ 231   1        P0=0x00;//关闭蜂鸣器继电器
+ 232   1        
+ 233   1        P2=0X80;
+ 234   1        P0=0XFF;//关闭LED灯
+ 235   1        
+ 236   1        P2=0XC0;
+ 237   1        P0=0XFF;//选择所有数码管
+ 238   1        P2=0XFF;
+C51 COMPILER V9.56.0.0   MAIN                                                              10/03/2017 17:06:36 PAGE 5   
+
+ 239   1        P0=0XFF;//关闭多有数码管  
+ 240   1      }
+ 241          
+ 242          void display1(uchar yi,uchar er)
+ 243          {
+ 244   1        P2=0XC0;
+ 245   1        P0=0X01;//选择所有数码管
+ 246   1        P2=0XFF;
+ 247   1        P0=tab[yi];//关闭多有数码管 
+ 248   1        delayms(1);
+ 249   1        
+ 250   1        P2=0XC0;
+ 251   1        P0=0X02;//选择所有数码管
+ 252   1        P2=0XFF;
+ 253   1        P0=dot[er];//关闭多有数码管 //P0=tab[yi]&0x7f;    0111 1111 
+ 254   1        delayms(1);
+ 255   1      }
+ 256          
+ 257          void display2(uchar san,uchar si)
+ 258          {
+ 259   1        P2=0XC0;
+ 260   1        P0=0X04;//选择所有数码管
+ 261   1        P2=0XFF;
+ 262   1        P0=tab[san];//关闭多有数码管  
+ 263   1        delayms(1);
+ 264   1        
+ 265   1        P2=0XC0;
+ 266   1        P0=0X08;//选择所有数码管
+ 267   1        P2=0XFF;
+ 268   1        P0=tab[si];//关闭多有数码管 
+ 269   1        delayms(1);
+ 270   1      }
+ 271          
+ 272          void display3(uchar wu,uchar liu)
+ 273          {
+ 274   1        P2=0XC0;
+ 275   1        P0=0X10;//选择所有数码管
+ 276   1        P2=0XFF;
+ 277   1        P0=tab[wu];//关闭多有数码管 
+ 278   1        delayms(1);
+ 279   1        
+ 280   1        P2=0XC0;
+ 281   1        P0=0X20;//选择所有数码管
+ 282   1        P2=0XFF;
+ 283   1        P0=dot[liu];//关闭多有数码管  
+ 284   1        delayms(1);
+ 285   1      }
+ 286          
+ 287          void display4(uchar qi,uchar ba)
+ 288          {
+ 289   1        P2=0XC0;
+ 290   1        P0=0X40;//选择所有数码管
+ 291   1        P2=0XFF;
+ 292   1        P0=tab[qi];//关闭多有数码管 
+ 293   1        delayms(1);
+ 294   1        
+ 295   1        P2=0XC0;
+ 296   1        P0=0X80;//选择所有数码管
+ 297   1        P2=0XFF;
+ 298   1        P0=tab[ba];//关闭多有数码管 
+ 299   1        delayms(1);
+ 300   1      }
+C51 COMPILER V9.56.0.0   MAIN                                                              10/03/2017 17:06:36 PAGE 6   
+
+ 301          
+ 302          void delayms(uint ms)
+ 303          {
+ 304   1        uint i,j;
+ 305   1        for(i=ms;i>0;i--)
+ 306   1          for(j=845;j>0;j--);
+ 307   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1243    ----
+   CONSTANT SIZE    =     22    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     14       4
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

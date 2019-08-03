@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "display.h": "c",
+        "wave.h": "c",
+        "hread.h": "c"
+    }
+}

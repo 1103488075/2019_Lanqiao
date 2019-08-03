@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "ds18b20.h": "c",
+        "ds1302.h": "c"
+    }
+}

@@ -1,0 +1,7 @@
+"Display.obj",
+"Key.obj",
+"Main.obj",
+"ds1302.obj",
+"iic.obj" 
+TO "Voltage_Khz" 
+RAMSIZE(256) 

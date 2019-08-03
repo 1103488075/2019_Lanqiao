@@ -1,0 +1,153 @@
+C51 COMPILER V9.00   DS1302                                                                03/28/2018 11:19:36 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE DS1302
+OBJECT MODULE PLACED IN .\Objects\ds1302.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE sour\ds1302.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listin
+                    -gs\ds1302.lst) TABS(2) OBJECT(.\Objects\ds1302.obj)
+
+line level    source
+
+   1          #include "includes.h"
+   2          /*！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
+   3          调用此模块时记得在main() 里调用初始化函数 DS1302_Init()；
+   4          
+   5          ！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！*/
+   6          /********************************************************************/
+   7          //------------------------------------------------------------------
+   8          //函数名称：Write_Ds1302_Byte(unsigned char dat)
+   9          //函数功能：向DS1302写入一个字节
+  10          //输入参数：date  将要写入的数据
+  11          //返回值：无
+  12          //时序原理：在控制指令字输入后的下一个SCLK时钟的上升沿时数据被写入DS1302，数据输入从第0位开始
+  13          //------------------------------------------------------------------
+  14          
+  15          /*发送一个字节到 DS1302 通信总线上*/
+  16          void Write_Ds1302_Byte(unsigned char dat)
+  17          {
+  18   1        unsigned char i;
+  19   1        SCK = 0;                //拉低SCLK，为脉冲上升沿写入数据做好准备
+  20   1        for (i=0;i<8;i++)
+  21   1        {
+  22   2          if (dat & 0x01)   // 首先取出dat的第0位(低位)数据写入1302
+  23   2          {
+  24   3            SDA_SET;    //#define SDA_SET SDA=1 /*电平置高*/
+  25   3          }
+  26   2          else
+  27   2          {
+  28   3            SDA_CLR;    //#define SDA_CLR SDA=0 /*电平置低*/
+  29   3          }
+  30   2          SCK_SET;            //然后拉高时钟，上升沿写入数据
+  31   2          SCK_CLR;        //再拉低时钟，形成脉冲，完成一个位的操作
+  32   2          dat = dat >> 1; //将 data的各数据位右移1位，准备写入下一个数据位(高位)
+  33   2        }
+  34   1      }
+  35          /********************************************************************/
+  36          //------------------------------------------------------------------
+  37          //函数名称：Read_Ds1302_Byte(void)
+  38          //函数功能：从DS1302读取一个字节
+  39          //输入参数：无
+  40          //返回值：读取的数据
+  41          //时序原理：在紧跟8位的控制指令字后的下一个SCLK时钟的下降沿时读出DS1302的数据，读出数据时从低位0位到高位7
+  42          //注意：DS1302中所存放的数据是BCD码，在读写时要注意转换
+  43          //例如：00011000，当把它视为二进制数时，其值为24；但作为2位BCD码时，其值为18。
+  44          //------------------------------------------------------------------
+  45          
+  46          /* 由 DS1302 通信总线上读取一个字节 */
+  47          unsigned char Read_Ds1302_Byte(void)
+  48          {
+  49   1        unsigned char i, dat=0;
+  50   1        for (i=0;i<8;i++)
+  51   1        {
+  52   2          dat = dat >> 1;
+  53   2          /*首先读取此时的 IO 引脚，并设置 date 中的对应位*/
+  54   2          if (SDA_R)    //等价于if(SDA_R==1)    #define SDA_R SDA
+C51 COMPILER V9.00   DS1302                                                                03/28/2018 11:19:36 PAGE 2   
+
+  55   2          {
+  56   3            dat |= 0x80; // xxxx xxxx | 1000 0000 = 1xxx xxxx/*写 1*/
+  57   3          }
+  58   2          else //可不写？
+  59   2          {
+  60   3            dat &= 0x7F; // xxxx xxxx & 0111 1111 = 0xxx xxxx/*写 0*/
+  61   3          }
+  62   2          SCK_SET;    //然后拉高时钟，为脉冲下降沿读出数据做准备
+  63   2          SCK_CLR;    //再拉低时钟，时钟下降沿读出，完成一个位的动作
+  64   2        }
+  65   1        return dat;  //最后返回读到的字节数据
+  66   1      }
+  67          
+  68          /********************************************************************/
+  69          /*用单次写操作向某一寄存器写入一个字节，addr-寄存器地址，data-待写入字节 */
+  70          void Ds1302_Single_Byte_Write(unsigned char addr, unsigned char dat)
+  71          {
+  72   1      
+  73   1        RST_CLR;      /*RST脚置低，实现DS1302的初始化*/
+  74   1        SCK_CLR;      /*SCK脚置低，实现DS1302的初始化*/
+  75   1      
+  76   1        RST_SET;      //使能片选信号  /*启动DS1302总线,RST=1电平置高 */
+  77   1        addr = addr & 0xFE;   /*保证是写操作,写之前将最低位置零*/
+  78   1        Write_Ds1302_Byte(addr); /*写入目标地址：addr*/
+  79   1        Write_Ds1302_Byte(dat);  /*写入数据：dat*/
+  80   1        RST_CLR;         //除能片选信号 /*停止DS1302总线*/
+  81   1      }
+  82          
+  83          /********************************************************************/
+  84          //------------------------------------------------------------------
+  85          //函数名称：Ds1302_Single_Byte_Read(unsigned char addr)
+  86          //函数功能：从DS1302的指定寄存器读数据
+  87          //输入参数：addr 为读寄存器的地址
+  88          //返回值：data 读取的数据
+  89          //命令字：也即读寄存器的地址 最高位位7必须为1，位6如果为0表示存取日历数据，位5至位1表示操作单元的地址，位0
+             -为1表示读操作
+  90          //------------------------------------------------------------------
+  91          
+  92          /*用单次读操作从某一寄存器读取一个字节，addr-寄存器地址，返回值-读到的字节 */
+  93          unsigned char Ds1302_Single_Byte_Read(unsigned char addr)  //调用显示时要 % 或 / 16，而不是 10
+  94          {
+  95   1        unsigned char dat;
+  96   1        RST_CLR;      /*RST脚置低，实现DS1302的初始化*/
+  97   1        SCK_CLR;      /*SCK脚置低，实现DS1302的初始化*/
+  98   1      
+  99   1        RST_SET;  //使能片选信号 /*启动DS1302总线,RST=1电平置高 */
+ 100   1        addr = addr | 0x01;   /* 保证是写操作,写之前将最低位置高*/
+ 101   1        Write_Ds1302_Byte(addr); /*写入目标地址：addr*/
+ 102   1        dat=Read_Ds1302_Byte(); /*从DS1302中读出一个字节的数据*/
+ 103   1        RST_CLR;  //除能片选信号 /*停止DS1302总线*/
+ 104   1          SDA_CLR;//已经修改 释放IO引脚
+ 105   1        return dat;
+ 106   1      }
+ 107          
+ 108          /**************************************************************************/
+ 109          //自己写的程序
+ 110          void DS1302_Init()
+ 111          {
+ 112   1          Ds1302_Single_Byte_Write(0x8e,0x00); //关掉写保护
+ 113   1      
+ 114   1          Ds1302_Single_Byte_Write(ds1302_sec_addr,0x50);  //秒
+ 115   1          Ds1302_Single_Byte_Write(ds1302_min_addr,0x59);  //分 27
+C51 COMPILER V9.00   DS1302                                                                03/28/2018 11:19:36 PAGE 3   
+
+ 116   1          Ds1302_Single_Byte_Write(ds1302_hr_addr,0x23);  //时  09
+ 117   1          Ds1302_Single_Byte_Write(ds1302_date_addr,0x25);  //日
+ 118   1          Ds1302_Single_Byte_Write(ds1302_month_addr,0x01);  //月
+ 119   1          Ds1302_Single_Byte_Write(ds1302_day_addr,0x06);  //星期
+ 120   1          Ds1302_Single_Byte_Write(ds1302_year_addr,0x18);  //年
+ 121   1      
+ 122   1          Ds1302_Single_Byte_Write(0x8e,0x80); //关闭写保护
+ 123   1      }
+ 124          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    161    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

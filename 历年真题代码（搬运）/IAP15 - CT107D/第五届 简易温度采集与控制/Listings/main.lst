@@ -1,0 +1,147 @@
+C51 COMPILER V9.00   MAIN                                                                  02/02/2018 17:03:17 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main
+                    -.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include"STC15F2K60S2.h"
+   2          #include"allinit.h"
+   3          #include"keypad.h"
+   4          #include"smg.h"
+   5          #include"onewire.c"
+   6          
+   7          #define uchar unsigned char
+   8          #define uint unsigned int
+   9          
+  10          uchar PATTERN=1,TMAX = 30,TMIN = 20; //模式，温度上限，温度下限
+  11          bit star; //LED1函数闪烁标志位,
+  12          void main(void)
+  13          {
+  14   1        uint Temperature;
+  15   1        allinit();
+  16   1        smg_Timer0init();
+  17   1        while(1)
+  18   1        {
+  19   2          key_down();
+  20   2          /*----------------------------温度读取------------------------------------------------------------------
+             --------*/
+  21   2          if(flag100ms ==1)
+  22   2          {
+  23   3            flag100ms = 0;
+  24   3            Temperature = Temper_Read();
+  25   3          }
+  26   2          /*------------------------------用户输入----------------------------------------------------------------
+             -----*/
+  27   2          if(SetFlag == 1)
+  28   2          {
+  29   3            if(TMAXTMIN == 0)
+  30   3            {
+  31   4              dspbuff[1] = 16;
+  32   4              dspbuff[2] = 16;
+  33   4              dspbuff[6] = 16;
+  34   4              dspbuff[7] = 16;
+  35   4            }
+  36   3            TMAX=(TMAXTMIN / 1000) * 10 + (TMAXTMIN %1000/100);
+  37   3            TMIN=(TMAXTMIN % 100/10) * 10 + (TMAXTMIN %10);
+  38   3            if(TMIN > TMAX)
+  39   3              LED2(1);
+  40   3            else
+  41   3              LED2(0);
+  42   3            dspbuff[0] = 17;
+  43   3            if(TMAXTMIN != 0) //没有输入数值时
+  44   3            {
+  45   4              dspbuff[1] = TMAX / 10;
+  46   4              dspbuff[2] = TMAX % 10;
+  47   4            }
+  48   3            dspbuff[3] = 16;
+  49   3            dspbuff[4] = 16;
+  50   3            dspbuff[5] = 17;
+  51   3            if(TMAXTMIN != 0)
+  52   3            {
+C51 COMPILER V9.00   MAIN                                                                  02/02/2018 17:03:17 PAGE 2   
+
+  53   4              dspbuff[6] = TMIN / 10;
+  54   4              dspbuff[7] = TMIN % 10;
+  55   4            }
+  56   3          }
+  57   2          /*-----------------------------模式识别-----------------------------------------------------------------
+             ---*/
+  58   2          if(Temperature < TMIN)
+  59   2          {
+  60   3            PATTERN = 0;
+  61   3          }
+  62   2          else if((Temperature <= TMAX)&&(Temperature >= TMIN))
+  63   2          {
+  64   3            PATTERN = 1;
+  65   3          }
+  66   2          else if(Temperature > TMAX)
+  67   2          {
+  68   3            PATTERN = 2;
+  69   3          }
+  70   2          /*-----------------------------数码管显示---------------------------------------------------------------
+             ----*/
+  71   2          if(SetFlag == 0)
+  72   2          {
+  73   3            dspbuff[0] = 17;
+  74   3            dspbuff[1] = PATTERN;
+  75   3            dspbuff[2] = 17;
+  76   3            dspbuff[3] = 16;
+  77   3            dspbuff[4] = 16;
+  78   3            dspbuff[5] = 16;
+  79   3            dspbuff[6] = Temperature / 10;
+  80   3            dspbuff[7] = Temperature % 10;
+  81   3          }
+  82   2          /*-------------------------------执行机制---------------------------------------------------------------
+             --*/
+  83   2          if(PATTERN == 0)
+  84   2          {
+  85   3            RELAY(0);
+  86   3            if(flag800ms == 1)
+  87   3            {
+  88   4              flag800ms = 0;
+  89   4              star = ~star;
+  90   4              LED1(star);
+  91   4            }
+  92   3          }
+  93   2          if(PATTERN == 1)
+  94   2          {
+  95   3            RELAY(0);
+  96   3            if(flag400ms == 1)
+  97   3            {
+  98   4              flag400ms = 0;
+  99   4              star = ~star;
+ 100   4              LED1(star);
+ 101   4            }
+ 102   3          }
+ 103   2          if(PATTERN == 2)
+ 104   2          {
+ 105   3            RELAY(1);
+ 106   3            if(flag200ms == 1)
+ 107   3            {
+ 108   4              flag200ms = 0;
+ 109   4              star = ~star;
+ 110   4              LED1(star);
+ 111   4            }
+C51 COMPILER V9.00   MAIN                                                                  02/02/2018 17:03:17 PAGE 3   
+
+ 112   3          }
+ 113   2        } 
+ 114   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1294    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     51       2
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      6       4
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

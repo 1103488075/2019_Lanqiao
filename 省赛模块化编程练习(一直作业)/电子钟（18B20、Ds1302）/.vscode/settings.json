@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "ds1302.h": "c",
+        "hread.h": "c",
+        "display.h": "c"
+    }
+}

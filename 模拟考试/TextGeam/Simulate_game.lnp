@@ -1,0 +1,7 @@
+".\ScanKey.obj",
+".\Main.obj",
+".\Display..obj",
+".\ds1302.obj",
+".\iic.obj" 
+TO "Simulate_game" 
+RAMSIZE(256) 

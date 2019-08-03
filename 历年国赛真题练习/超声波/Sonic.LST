@@ -1,0 +1,71 @@
+C51 COMPILER V9.00   SONIC                                                                 03/14/2019 10:25:04 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE SONIC
+OBJECT MODULE PLACED IN Sonic.OBJ
+COMPILER INVOKED BY: C:\Keil_v4\C51\BIN\C51.EXE Sonic.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include "Sonic.h"
+   2           
+   3          uchar t = 0;
+   4          uchar Distance = 0;
+   5          
+   6          uchar ReadDistance()
+   7          {
+   8   1              if(s_flag)
+   9   1              {
+  10   2                      s_flag = 0;
+  11   2                      Send_wave();
+  12   2                      TR1 = 1;
+  13   2                      while((RX == 1)&&(TF1 == 0));
+  14   2                      TR1 = 0;
+  15   2      
+  16   2                      if(TF1 == 1)
+  17   2                      {
+  18   3                              TF1 = 0;
+  19   3                              Distance = 99;
+  20   3                      }
+  21   2                      else 
+  22   2                      {
+  23   3                              t = TH1;
+  24   3                              t <<= 8;
+  25   3                              t |= TL1;
+  26   3                              Distance = (uint)(t*0.017);
+  27   3                              Distance = Distance/12;
+  28   3                      }
+  29   2                      TH1 = 0;
+  30   2                      TL1 = 0;
+  31   2      
+  32   2              }
+  33   1              return Distance;
+  34   1      }
+  35          
+  36          void Send_wave()
+  37          {
+  38   1              uchar i ;
+  39   1              do
+  40   1              {
+  41   2                      TX = 1;
+  42   2                      somenop1;somenop1;somenop1;somenop1;somenop1;somenop1;somenop1;somenop1;somenop1;somenop1;
+  43   2                      TX = 0;
+  44   2                      somenop1;somenop1;somenop1;somenop1;somenop1;somenop1;somenop1;somenop1;somenop1;somenop1;
+  45   2              }while(i--);
+  46   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    291    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      2       1
+   IDATA SIZE       =   ----    ----
+C51 COMPILER V9.00   SONIC                                                                 03/14/2019 10:25:04 PAGE 2   
+
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

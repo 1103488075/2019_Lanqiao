@@ -1,0 +1,5 @@
+".\Display.obj",
+".\Key.obj",
+".\Main.obj" 
+TO "PwmCotrol" 
+RAMSIZE(256) 

@@ -1,0 +1,127 @@
+C51 COMPILER V9.00   MAIN                                                                  01/28/2018 13:50:55 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main
+                    -.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include"STC15F2K60S2.h"
+   2          #include"allinit.h"
+   3          #include"smg.h"
+   4          #include"iic.c"
+   5          
+   6          
+   7          #define  uchar unsigned char 
+   8          #define  uint  unsigned int 
+   9          
+  10          /*===============================================
+  11           指示部分
+  12          ===================================================*/
+  13          void BUZZ(uchar i)  //1 开
+  14          {
+  15   1        if(i)
+  16   1        {
+  17   2          P2 = (P2&0x1f)|0xA0;
+  18   2          P0 = 0x40;
+  19   2          P2 &=0x1f;
+  20   2        }
+  21   1        else
+  22   1        {
+  23   2          P2 = (P2&0x1f)|0xA0;
+  24   2          P0 = 0x00;
+  25   2          P2 &=0x1f;
+  26   2        }
+  27   1      }
+  28          
+  29          void LED1(uchar i)  //1 开
+  30          {
+  31   1        if(i)
+  32   1        {
+  33   2          P2 = (P2&0x1f)|0x80;
+  34   2          P0 = 0x7f;
+  35   2          P2 &=0x1f;
+  36   2        }
+  37   1        else
+  38   1        {
+  39   2          P2 = (P2&0x1f)|0x80;
+  40   2          P0 = 0xff;
+  41   2          P2 &=0x1f;
+  42   2        }
+  43   1      }
+  44          
+  45          void LED2(uchar i)  //1 开
+  46          {
+  47   1        if(i)
+  48   1        {
+  49   2          P2 = (P2&0x1f)|0x80;
+  50   2          P0 = 0xbf;
+  51   2          P2 &=0x1f;
+  52   2        }
+  53   1        else
+  54   1        {
+C51 COMPILER V9.00   MAIN                                                                  01/28/2018 13:50:55 PAGE 2   
+
+  55   2          P2 = (P2&0x1f)|0x80;
+  56   2          P0 = 0xff;
+  57   2          P2 &=0x1f;
+  58   2        }
+  59   1      }
+  60          /*==================================================*/
+  61          void Delay100ms()   //@11.0592MHz
+  62          {
+  63   1        unsigned char i, j, k;
+  64   1      
+  65   1        _nop_();
+  66   1        _nop_();
+  67   1        i = 5;
+  68   1        j = 52;
+  69   1        k = 195;
+  70   1        do
+  71   1        {
+  72   2          do
+  73   2          {
+  74   3            while (--k);
+  75   3          } while (--j);
+  76   2        } while (--i);
+  77   1      }
+  78          
+  79          
+  80          void main(void)
+  81          {
+  82   1        uint ADC_Value;
+  83   1        allinit();
+  84   1        smg_Timerinit();
+  85   1      //  ADC_Init(0x01); //1 为光敏， 3  为Rb2电位器
+  86   1        while(1)
+  87   1        {
+  88   2          //读取通道3 AD 模数转换的值，单端输入
+  89   2          if(ADC_Read(0x03,&ADC_Value)) LED1(1); else  LED1(0);
+  90   2          //把 AD 模数转换得到的数值再送给PCF8591 经过DA数模转换转换为模拟量控制模拟量输出口的小灯 
+  91   2          if(DAC_Out(ADC_Value)) LED2(1); else LED2(0);  //为什么把这一行注释掉，第一个小灯常亮？
+  92   2          //显示
+  93   2          ADC_Value = fun(ADC_Value);
+  94   2          dspbuff[0]=ADC_Value/100+17;
+  95   2          dspbuff[1]=ADC_Value%100/10;
+  96   2          dspbuff[2]=ADC_Value%100%10;
+  97   2          if(ADC_Value > 150)   BUZZ(1); else BUZZ(0);
+  98   2          Delay100ms();
+  99   2        }
+ 100   1        
+ 101   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    849    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     39       8
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

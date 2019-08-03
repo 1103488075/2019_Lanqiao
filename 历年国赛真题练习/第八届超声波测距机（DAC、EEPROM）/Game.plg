@@ -1,0 +1,78 @@
+<html>
+<body>
+<pre>
+<h1>礦ision Build Log</h1>
+<h2>Project:</h2>
+C:\Users\My computer\Desktop\git\2019NianLanQiaoBeiDanPianJiBiSai-Baolian\历年国赛真题练习\第八届超声波测距机（DAC、EEPROM）\Game.uvproj
+Project File Date:  03/14/2019
+
+<h2>Output:</h2>
+Build target 'Target 1'
+compiling Display.c...
+compiling iic.c...
+..\第九届多功能测量仪EEPROMADNE555DS18B20\IIC.C(120): error C231: '_Read_AD': redefinition
+..\第九届多功能测量仪EEPROMADNE555DS18B20\IIC.C(137): error C231: '_Read_AD': redefinition
+compiling Key.c...
+..\第九届多功能测量仪EEPROMADNE555DS18B20\KEY.C(39): error C202: 'sum1': undefined identifier
+..\第九届多功能测量仪EEPROMADNE555DS18B20\KEY.C(40): error C202: 'sum2': undefined identifier
+..\第九届多功能测量仪EEPROMADNE555DS18B20\KEY.C(42): error C202: 'Voltage': undefined identifier
+..\第九届多功能测量仪EEPROMADNE555DS18B20\KEY.C(43): error C202: 'Khz': undefined identifier
+compiling Main.c...
+..\第九届多功能测量仪EEPROMADNE555DS18B20\MAIN.C(16): warning C231: 'addr': redefinition
+..\第九届多功能测量仪EEPROMADNE555DS18B20\MAIN.C(23): error C202: 'S4': undefined identifier
+..\第九届多功能测量仪EEPROMADNE555DS18B20\MAIN.C(25): error C202: 'jiu': undefined identifier
+..\第九届多功能测量仪EEPROMADNE555DS18B20\MAIN.C(27): error C202: 'S4': undefined identifier
+..\第九届多功能测量仪EEPROMADNE555DS18B20\MAIN.C(32): error C202: 'jiu': undefined identifier
+..\第九届多功能测量仪EEPROMADNE555DS18B20\MAIN.C(35): error C202: 'S4': undefined identifier
+..\第九届多功能测量仪EEPROMADNE555DS18B20\MAIN.C(38): error C202: 'jiu': undefined identifier
+..\第九届多功能测量仪EEPROMADNE555DS18B20\MAIN.C(40): error C202: 'S4': undefined identifier
+compiling onewire.c...
+..\第九届多功能测量仪EEPROMADNE555DS18B20\ONEWIRE.C(74): error C231: 'Read_18B20': redefinition
+..\第九届多功能测量仪EEPROMADNE555DS18B20\ONEWIRE.C(90): error C231: 'Read_18B20': redefinition
+Target not created
+Build target 'Target 1'
+compiling Display.c...
+compiling iic.c...
+..\第九届多功能测量仪EEPROMADNE555DS18B20\IIC.C(120): error C231: '_Read_AD': redefinition
+..\第九届多功能测量仪EEPROMADNE555DS18B20\IIC.C(137): error C231: '_Read_AD': redefinition
+compiling Key.c...
+..\第九届多功能测量仪EEPROMADNE555DS18B20\KEY.C(39): error C202: 'sum1': undefined identifier
+..\第九届多功能测量仪EEPROMADNE555DS18B20\KEY.C(40): error C202: 'sum2': undefined identifier
+..\第九届多功能测量仪EEPROMADNE555DS18B20\KEY.C(42): error C202: 'Voltage': undefined identifier
+..\第九届多功能测量仪EEPROMADNE555DS18B20\KEY.C(43): error C202: 'Khz': undefined identifier
+compiling Main.c...
+..\第九届多功能测量仪EEPROMADNE555DS18B20\MAIN.C(16): warning C231: 'addr': redefinition
+..\第九届多功能测量仪EEPROMADNE555DS18B20\MAIN.C(23): error C202: 'S4': undefined identifier
+..\第九届多功能测量仪EEPROMADNE555DS18B20\MAIN.C(25): error C202: 'jiu': undefined identifier
+..\第九届多功能测量仪EEPROMADNE555DS18B20\MAIN.C(27): error C202: 'S4': undefined identifier
+..\第九届多功能测量仪EEPROMADNE555DS18B20\MAIN.C(32): error C202: 'jiu': undefined identifier
+..\第九届多功能测量仪EEPROMADNE555DS18B20\MAIN.C(35): error C202: 'S4': undefined identifier
+..\第九届多功能测量仪EEPROMADNE555DS18B20\MAIN.C(38): error C202: 'jiu': undefined identifier
+..\第九届多功能测量仪EEPROMADNE555DS18B20\MAIN.C(40): error C202: 'S4': undefined identifier
+compiling onewire.c...
+..\第九届多功能测量仪EEPROMADNE555DS18B20\ONEWIRE.C(74): error C231: 'Read_18B20': redefinition
+..\第九届多功能测量仪EEPROMADNE555DS18B20\ONEWIRE.C(90): error C231: 'Read_18B20': redefinition
+Target not created
+Build target 'Target 1'
+compiling Display.c...
+compiling iic.c...
+..\第九届多功能测量仪EEPROMADNE555DS18B20\IIC.C(120): error C231: '_Read_AD': redefinition
+..\第九届多功能测量仪EEPROMADNE555DS18B20\IIC.C(137): error C231: '_Read_AD': redefinition
+compiling Key.c...
+..\第九届多功能测量仪EEPROMADNE555DS18B20\KEY.C(39): error C202: 'sum1': undefined identifier
+..\第九届多功能测量仪EEPROMADNE555DS18B20\KEY.C(40): error C202: 'sum2': undefined identifier
+..\第九届多功能测量仪EEPROMADNE555DS18B20\KEY.C(42): error C202: 'Voltage': undefined identifier
+..\第九届多功能测量仪EEPROMADNE555DS18B20\KEY.C(43): error C202: 'Khz': undefined identifier
+compiling Main.c...
+..\第九届多功能测量仪EEPROMADNE555DS18B20\MAIN.C(16): warning C231: 'addr': redefinition
+..\第九届多功能测量仪EEPROMADNE555DS18B20\MAIN.C(23): error C202: 'S4': undefined identifier
+..\第九届多功能测量仪EEPROMADNE555DS18B20\MAIN.C(25): error C202: 'jiu': undefined identifier
+..\第九届多功能测量仪EEPROMADNE555DS18B20\MAIN.C(27): error C202: 'S4': undefined identifier
+..\第九届多功能测量仪EEPROMADNE555DS18B20\MAIN.C(32): error C202: 'jiu': undefined identifier
+..\第九届多功能测量仪EEPROMADNE555DS18B20\MAIN.C(35): error C202: 'S4': undefined identifier
+..\第九届多功能测量仪EEPROMADNE555DS18B20\MAIN.C(38): error C202: 'jiu': undefined identifier
+..\第九届多功能测量仪EEPROMADNE555DS18B20\MAIN.C(40): error C202: 'S4': undefined identifier
+compiling onewire.c...
+..\第九届多功能测量仪EEPROMADNE555DS18B20\ONEWIRE.C(74): error C231: 'Read_18B20': redefinition
+..\第九届多功能测量仪EEPROMADNE555DS18B20\ONEWIRE.C(90): error C231: 'Read_18B20': redefinition
+Target not created

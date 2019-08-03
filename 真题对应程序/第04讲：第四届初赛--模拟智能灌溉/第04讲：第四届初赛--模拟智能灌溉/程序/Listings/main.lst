@@ -1,0 +1,279 @@
+C51 COMPILER V9.56.0.0   MAIN                                                              10/04/2017 16:36:44 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main
+                    -.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include<STC15F2K60S2.H>
+   2          #include "intrins.h"
+   3          #include "iic.h"
+   4          #include "ds1302.h"
+   5            
+   6          uchar code tab[]={0xc0,0xf9,0xa4,0xb0,0x99,0x92,0x82,0xf8,0x80,0x90,0xbf,0xff}; 
+   7          uchar yi,er,san,si,wu,liu,qi,ba;
+   8          uchar shidu;
+   9          uchar fazhi;
+  10          extern unsigned char shijian[];
+  11          bit s6=0,jia=0,jian=0,status=0,kai=1,relay=0;
+  12          
+  13          void allinit(void);
+  14          void delayms(uint ms);
+  15          void keyscan(void);
+  16          void display1(uchar yi,uchar er);
+  17          void display2(uchar san,uchar si);
+  18          void display3(uchar wu,uchar liu);
+  19          void display4(uchar qi,uchar ba);
+  20          
+  21          void main(void)
+  22          {
+  23   1        allinit();
+  24   1        DS_init();
+  25   1        P2=0X80;P0=0XFE;
+  26   1        yi=0;er=8;san=10;si=3;wu=0;liu=11;qi=0;ba=0;
+  27   1      //  EEPROM_write(0x10,50);
+  28   1      //  delayms(5);
+  29   1        fazhi=EEPROM_read(0x10);
+  30   1        while(1)
+  31   1        {
+  32   2          DS_get();
+  33   2          shidu=AD_read(0x03);
+  34   2          if(status==0)
+  35   2          {
+  36   3            if(shidu<fazhi)
+  37   3            {
+  38   4              P2=0XA0;P0=0X10;
+  39   4            }
+  40   3            else 
+  41   3            {
+  42   4              P2=0XA0;P0=0X00;
+  43   4            }
+  44   3            
+  45   3            if(s6==1)
+  46   3            {
+  47   4              if(jia==1)
+  48   4              {
+  49   5                jia=0;
+  50   5                fazhi=fazhi+1;
+  51   5              }
+  52   4              if(jian==1)
+  53   4              {
+  54   5                jian=0;
+C51 COMPILER V9.56.0.0   MAIN                                                              10/04/2017 16:36:44 PAGE 2   
+
+  55   5                fazhi=fazhi-1;
+  56   5              }
+  57   4              yi=10;er=10;san=11;si=11;wu=11;liu=11;qi=fazhi/10;ba=fazhi%10;
+  58   4            }
+  59   3            else if(s6==0)
+  60   3            {
+  61   4              yi=shijian[2]/10;er=shijian[2]%10;san=10;
+  62   4              si=shijian[1]/10;wu=shijian[1]%10;liu=11;
+  63   4              qi=shidu/10;ba=shidu%10;        
+  64   4            }
+  65   3          }
+  66   2          else if(status==1)
+  67   2          {
+  68   3            if((shidu<fazhi)&&(kai==0))
+  69   3            {
+  70   4              if(relay==1){P2=0XA0;P0=0X10;}
+  71   4              else if(relay==0){P2=0XA0;P0=0X00;}
+  72   4            }
+  73   3            if((shidu<fazhi)&&(kai==1))
+  74   3            {
+  75   4              if(relay==1){P2=0XA0;P0=0X50;}
+  76   4              else if(relay==0){P2=0XA0;P0=0X40;}
+  77   4            }
+  78   3            else if(shidu>fazhi)
+  79   3            {
+  80   4              if(relay==1){P2=0XA0;P0=0X10;}
+  81   4              else if(relay==0){P2=0XA0;P0=0X00;}
+  82   4            }
+  83   3            yi=shijian[2]/10;er=shijian[2]%10;san=10;
+  84   3            si=shijian[1]/10;wu=shijian[1]%10;liu=11;
+  85   3            qi=shidu/10;ba=shidu%10;    
+  86   3          }
+  87   2      
+  88   2      //    shidu=AD_read(0x03);
+  89   2      //    liu=shidu/100;qi=shidu%100/10;ba=shidu%10;
+  90   2          
+  91   2      //    EEPROM_write(0x10,125);
+  92   2      //    delayms(5);
+  93   2      //    shidu=EEPROM_read(0x10);
+  94   2      //    liu=shidu/100;qi=shidu%100/10;ba=shidu%10;
+  95   2          
+  96   2      //    DS_get();
+  97   2      //    yi=shijian[2]/10;er=shijian[2]%10;san=10;
+  98   2      //    si=shijian[1]/10;wu=shijian[1]%10;liu=10;
+  99   2      //    qi=shijian[0]/10;ba=shijian[0]%10;
+ 100   2          
+ 101   2          keyscan();
+ 102   2          display1(yi,er);
+ 103   2          display2(san,si);
+ 104   2          display3(wu,liu);
+ 105   2          display4(qi,ba);
+ 106   2        }
+ 107   1      }
+ 108          
+ 109          void keyscan(void)
+ 110          {
+ 111   1        if(P30==0)
+ 112   1        {
+ 113   2          delayms(5);
+ 114   2          if(P30==0)
+ 115   2          {
+ 116   3            if(status==0)
+C51 COMPILER V9.56.0.0   MAIN                                                              10/04/2017 16:36:44 PAGE 3   
+
+ 117   3            {
+ 118   4              status=1;
+ 119   4              P2=0X80;P0=0XFD;
+ 120   4            }
+ 121   3            else if(status==1)
+ 122   3            {
+ 123   4              status=0;
+ 124   4              P2=0X80;P0=0XFE;
+ 125   4            }
+ 126   3          }
+ 127   2          while(!P30);
+ 128   2        }
+ 129   1        else if(P31==0)
+ 130   1        {
+ 131   2          delayms(5);
+ 132   2          if(P31==0)
+ 133   2          {
+ 134   3            if(status==0)
+ 135   3            {
+ 136   4              if(s6==0){s6=1;}
+ 137   4              else if(s6==1){s6=0;EEPROM_write(0x10,fazhi);}
+ 138   4            }
+ 139   3            else if(status==1)
+ 140   3            {
+ 141   4              kai=~kai;
+ 142   4            }
+ 143   3          }
+ 144   2          while(!P31);
+ 145   2        }
+ 146   1        else if(P32==0)
+ 147   1        {
+ 148   2          delayms(5);
+ 149   2          if(P32==0)
+ 150   2          {
+ 151   3            if(status==0)jia=1;
+ 152   3            else if(status==1)relay=1;
+ 153   3          }
+ 154   2          while(!P32);
+ 155   2        }
+ 156   1        else if(P33==0)
+ 157   1        {
+ 158   2          delayms(5);
+ 159   2          if(P33==0)
+ 160   2          {
+ 161   3            if(status==0)jian=1;
+ 162   3            else if(status==1)relay=0;  
+ 163   3          }
+ 164   2          while(!P33);
+ 165   2        }
+ 166   1      }
+ 167          
+ 168          void allinit(void)
+ 169          {
+ 170   1        P2=0XA0;
+ 171   1        P0=0x00;//关闭蜂鸣器继电器
+ 172   1        
+ 173   1        P2=0X80;
+ 174   1        P0=0XFF;//关闭LED灯
+ 175   1        
+ 176   1        P2=0XC0;
+ 177   1        P0=0XFF;//选择所有数码管
+ 178   1        P2=0XFF;
+C51 COMPILER V9.56.0.0   MAIN                                                              10/04/2017 16:36:44 PAGE 4   
+
+ 179   1        P0=0XFF;//关闭多有数码管  
+ 180   1      }
+ 181          
+ 182          void display1(uchar yi,uchar er)
+ 183          {
+ 184   1        P2=0XC0;
+ 185   1        P0=0X01;//选择所有数码管
+ 186   1        P2=0XFF;
+ 187   1        P0=tab[yi];//关闭多有数码管 
+ 188   1        delayms(1);
+ 189   1        
+ 190   1        P2=0XC0;
+ 191   1        P0=0X02;//选择所有数码管
+ 192   1        P2=0XFF;
+ 193   1        P0=tab[er];//关闭多有数码管 
+ 194   1        delayms(1);
+ 195   1      }
+ 196          
+ 197          void display2(uchar san,uchar si)
+ 198          {
+ 199   1        P2=0XC0;
+ 200   1        P0=0X04;//选择所有数码管
+ 201   1        P2=0XFF;
+ 202   1        P0=tab[san];//关闭多有数码管  
+ 203   1        delayms(1);
+ 204   1        
+ 205   1        P2=0XC0;
+ 206   1        P0=0X08;//选择所有数码管
+ 207   1        P2=0XFF;
+ 208   1        P0=tab[si];//关闭多有数码管 
+ 209   1        delayms(1);
+ 210   1      }
+ 211          
+ 212          void display3(uchar wu,uchar liu)
+ 213          {
+ 214   1        P2=0XC0;
+ 215   1        P0=0X10;//选择所有数码管
+ 216   1        P2=0XFF;
+ 217   1        P0=tab[wu];//关闭多有数码管 
+ 218   1        delayms(1);
+ 219   1        
+ 220   1        P2=0XC0;
+ 221   1        P0=0X20;//选择所有数码管
+ 222   1        P2=0XFF;
+ 223   1        P0=tab[liu];//关闭多有数码管  
+ 224   1        delayms(1);
+ 225   1      }
+ 226          
+ 227          void display4(uchar qi,uchar ba)
+ 228          {
+ 229   1        P2=0XC0;
+ 230   1        P0=0X40;//选择所有数码管
+ 231   1        P2=0XFF;
+ 232   1        P0=tab[qi];//关闭多有数码管 
+ 233   1        delayms(1);
+ 234   1        
+ 235   1        P2=0XC0;
+ 236   1        P0=0X80;//选择所有数码管
+ 237   1        P2=0XFF;
+ 238   1        P0=tab[ba];//关闭多有数码管 
+ 239   1        delayms(1);
+ 240   1      }
+C51 COMPILER V9.56.0.0   MAIN                                                              10/04/2017 16:36:44 PAGE 5   
+
+ 241          
+ 242          void delayms(uint ms)
+ 243          {
+ 244   1        uint i,j;
+ 245   1        for(i=ms;i>0;i--)
+ 246   1          for(j=845;j>0;j--);
+ 247   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    727    ----
+   CONSTANT SIZE    =     12    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     10       4
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      6    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

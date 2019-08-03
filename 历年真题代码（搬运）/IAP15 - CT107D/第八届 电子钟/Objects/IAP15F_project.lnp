@@ -1,0 +1,3 @@
+".\Objects\main.obj" 
+TO ".\Objects\IAP15F_project" 
+PRINT(".\Listings\IAP15F_project.m51") RAMSIZE(256) 

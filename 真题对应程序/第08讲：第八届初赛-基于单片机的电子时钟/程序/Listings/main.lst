@@ -1,0 +1,407 @@
+C51 COMPILER V9.56.0.0   MAIN                                                              10/14/2017 18:14:00 PAGE 1   
+
+
+C51 COMPILER V9.56.0.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main
+                    -.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include<STC15F2K60S2.H>
+   2          #include "DEPUTY.H"
+   3          
+   4          #define uchar unsigned char
+   5          #define uint unsigned int
+   6          
+   7          uchar code tab[]={0xc0,0xf9,0xa4,0xb0,0x99,0x92,0x82,0xf8,0x80,0x90,0xbf,0xff,0xc6}; 
+   8          uchar yi,er,san,si,wu,liu,qi,ba;
+   9          extern unsigned char shijian[];
+  10          uchar Alarm_clock[3]={0,0,0};
+  11          uchar Time_set=5,Alarm_set=0;
+  12          uchar s4=0;
+  13          bit wendu=0;
+  14          uchar LED_shan=0;
+  15          uchar tt=0;
+  16          bit fla=0;
+  17          uint miao=0;
+  18          
+  19          void allinit(void);
+  20          void delayms(uint ms);
+  21          void keyscan(void);
+  22          void display1(uchar yi,uchar er);
+  23          void display2(uchar san,uchar si);
+  24          void display3(uchar wu,uchar liu);
+  25          void display4(uchar qi,uchar ba);
+  26          void Timer0Init(void);    
+  27          
+  28          void main(void)
+  29          {
+  30   1        allinit();
+  31   1        Timer0Init();
+  32   1        DS_init();
+  33   1        yi=0;er=8;san=10;si=3;wu=0;liu=10;qi=0;ba=0;
+  34   1        while(1)
+  35   1        {
+  36   2          DS_get();
+  37   2          if(wendu==0)
+  38   2          {
+  39   3            if(Time_set==5)
+  40   3            {
+  41   4              yi=shijian[2]/10;er=shijian[2]%10;san=10;si=shijian[1]/10;wu=shijian[1]%10;liu=10;qi=shijian[0]/10;ba=
+             -shijian[0]%10;
+  42   4            }
+  43   3            else if(Time_set==1)
+  44   3            {
+  45   4              if(shijian[0]%2==1){yi=shijian[2]/10;er=shijian[2]%10;san=10;si=shijian[1]/10;wu=shijian[1]%10;liu=10;
+             -qi=shijian[0]/10;ba=shijian[0]%10;}
+  46   4              else {yi=11;er=11;san=10;si=shijian[1]/10;wu=shijian[1]%10;liu=10;qi=shijian[0]/10;ba=shijian[0]%10;}
+  47   4            }
+  48   3            else if(Time_set==2)
+  49   3            {
+  50   4              if(shijian[0]%2==1){yi=shijian[2]/10;er=shijian[2]%10;san=10;si=shijian[1]/10;wu=shijian[1]%10;liu=10;
+             -qi=shijian[0]/10;ba=shijian[0]%10;}
+  51   4              else {yi=shijian[2]/10;er=shijian[2]%10;san=10;si=11;wu=11;liu=10;qi=shijian[0]/10;ba=shijian[0]%10;}
+C51 COMPILER V9.56.0.0   MAIN                                                              10/14/2017 18:14:00 PAGE 2   
+
+  52   4            }
+  53   3            else if(Time_set==3)
+  54   3            {
+  55   4              if(shijian[0]%2==1){yi=shijian[2]/10;er=shijian[2]%10;san=10;si=shijian[1]/10;wu=shijian[1]%10;liu=10;
+             -qi=shijian[0]/10;ba=shijian[0]%10;}
+  56   4              else {yi=shijian[2]/10;er=shijian[2]%10;san=10;si=shijian[1]/10;wu=shijian[1]%10;liu=10;qi=11;ba=11;}
+  57   4            } 
+  58   3            
+  59   3            if(Alarm_set==5)
+  60   3            {
+  61   4              yi=Alarm_clock[2]/10;er=Alarm_clock[2]%10;san=10;si=Alarm_clock[1]/10;wu=Alarm_clock[1]%10;liu=10;qi=A
+             -larm_clock[0]/10;ba=Alarm_clock[0]%10;
+  62   4            }
+  63   3            else if(Alarm_set==1)
+  64   3            {
+  65   4              if(shijian[0]%2==1){yi=Alarm_clock[2]/10;er=Alarm_clock[2]%10;san=10;si=Alarm_clock[1]/10;wu=Alarm_clo
+             -ck[1]%10;liu=10;qi=Alarm_clock[0]/10;ba=Alarm_clock[0]%10;}
+  66   4              else {yi=11;er=11;san=10;si=Alarm_clock[1]/10;wu=Alarm_clock[1]%10;liu=10;qi=Alarm_clock[0]/10;ba=Alar
+             -m_clock[0]%10;}
+  67   4            }
+  68   3            else if(Alarm_set==2)
+  69   3            {
+  70   4              if(shijian[0]%2==1){yi=Alarm_clock[2]/10;er=Alarm_clock[2]%10;san=10;si=Alarm_clock[1]/10;wu=Alarm_clo
+             -ck[1]%10;liu=10;qi=Alarm_clock[0]/10;ba=Alarm_clock[0]%10;}
+  71   4              else {yi=Alarm_clock[2]/10;er=Alarm_clock[2]%10;san=10;si=11;wu=11;liu=10;qi=Alarm_clock[0]/10;ba=Alar
+             -m_clock[0]%10;}
+  72   4            }
+  73   3            else if(Alarm_set==3)
+  74   3            {
+  75   4              if(shijian[0]%2==1){yi=Alarm_clock[2]/10;er=Alarm_clock[2]%10;san=10;si=Alarm_clock[1]/10;wu=Alarm_clo
+             -ck[1]%10;liu=10;qi=Alarm_clock[0]/10;ba=Alarm_clock[0]%10;}
+  76   4              else {yi=Alarm_clock[2]/10;er=Alarm_clock[2]%10;san=10;si=Alarm_clock[1]/10;wu=Alarm_clock[1]%10;liu=1
+             -0;qi=11;ba=11;}
+  77   4            }
+  78   3          }
+  79   2          else if(wendu==1)
+  80   2          {
+  81   3            yi=11;er=11;san=11;si=11;wu=11;liu=Tempget()/10;qi=Tempget()%10;ba=12;
+  82   3          }
+  83   2      
+  84   2          
+  85   2          if((shijian[0]==Alarm_clock[0])&&(shijian[1]==Alarm_clock[1])&&(shijian[2]==Alarm_clock[2]))
+  86   2          {
+  87   3            LED_shan=1;tt=0;miao=0;
+  88   3          }
+  89   2          
+  90   2          keyscan();
+  91   2          
+  92   2          display1(yi,er);
+  93   2          display2(san,si);
+  94   2          display3(wu,liu);
+  95   2          display4(qi,ba);
+  96   2        }
+  97   1      }
+  98          
+  99          void keyscan(void)
+ 100          {
+ 101   1        if(P30==0)
+ 102   1        {
+ 103   2          delayms(5);
+ 104   2          if(P30==0)
+ 105   2          {
+C51 COMPILER V9.56.0.0   MAIN                                                              10/14/2017 18:14:00 PAGE 3   
+
+ 106   3            if(LED_shan==0)
+ 107   3            {
+ 108   4              if(Time_set==0){Time_set=5;Alarm_set=0;}
+ 109   4              else if(Time_set==5)Time_set=1;
+ 110   4              else if(Time_set==1)Time_set=2;
+ 111   4              else if(Time_set==2)Time_set=3;
+ 112   4              else if(Time_set==3)Time_set=5;
+ 113   4            }
+ 114   3            else if(LED_shan==1)
+ 115   3            {
+ 116   4              LED_shan=0;P2=0X80;P0=0XFF;
+ 117   4            }
+ 118   3          }
+ 119   2          while(!P30);
+ 120   2        }
+ 121   1        else if(P31==0)
+ 122   1        {
+ 123   2          delayms(5);
+ 124   2          if(P31==0)
+ 125   2          {
+ 126   3            if(LED_shan==0)
+ 127   3            {
+ 128   4              if(Alarm_set==0){Alarm_set=5;Time_set=0;}
+ 129   4              else if(Alarm_set==5)Alarm_set=1;
+ 130   4              else if(Alarm_set==1)Alarm_set=2;
+ 131   4              else if(Alarm_set==2)Alarm_set=3;
+ 132   4              else if(Alarm_set==3)Alarm_set=5;
+ 133   4            }
+ 134   3            else if(LED_shan==1)
+ 135   3            {
+ 136   4              LED_shan=0;P2=0X80;P0=0XFF;
+ 137   4            }
+ 138   3          }
+ 139   2          while(!P31);
+ 140   2        }
+ 141   1        else if(P32==0)
+ 142   1        {
+ 143   2          delayms(5);
+ 144   2          if(P32==0)
+ 145   2          { 
+ 146   3            if(LED_shan==0)
+ 147   3            {
+ 148   4              if(Time_set==1)
+ 149   4              {
+ 150   5                if(shijian[2]==23)shijian[2]=0;
+ 151   5                else shijian[2]++;
+ 152   5                DS_init();
+ 153   5              }
+ 154   4              else if(Time_set==2)
+ 155   4              {
+ 156   5                if(shijian[1]==59)shijian[1]=0;
+ 157   5                else shijian[1]++;DS_init();
+ 158   5              }
+ 159   4              else if(Time_set==3)
+ 160   4              { 
+ 161   5                if(shijian[0]==59)shijian[0]=0;
+ 162   5                else shijian[0]++;DS_init();
+ 163   5              }
+ 164   4              else if(Alarm_set==1)
+ 165   4              {
+ 166   5                if(Alarm_clock[2]==23)Alarm_clock[2]=0;
+ 167   5                else Alarm_clock[2]++;
+C51 COMPILER V9.56.0.0   MAIN                                                              10/14/2017 18:14:00 PAGE 4   
+
+ 168   5              }
+ 169   4              else if(Alarm_set==2)
+ 170   4              {
+ 171   5                if(Alarm_clock[1]==59)Alarm_clock[1]=0;
+ 172   5                else Alarm_clock[1]++;
+ 173   5              }
+ 174   4              else if(Alarm_set==3)
+ 175   4              {
+ 176   5                if(Alarm_clock[0]==59)Alarm_clock[0]=0;
+ 177   5                else Alarm_clock[0]++;
+ 178   5              }
+ 179   4            }
+ 180   3            else if(LED_shan==1)
+ 181   3            {
+ 182   4              LED_shan=0;P2=0X80;P0=0XFF;
+ 183   4            }
+ 184   3          }
+ 185   2          while(!P32);
+ 186   2        }
+ 187   1        else if(P33==0)
+ 188   1        {
+ 189   2          delayms(5);
+ 190   2          if(P33==0)
+ 191   2          {
+ 192   3            s4=1;
+ 193   3            if(Time_set==5)wendu=1;
+ 194   3          }
+ 195   2        }
+ 196   1        
+ 197   1        if((s4==1)&&(P33==1))
+ 198   1        { 
+ 199   2          s4=0;
+ 200   2          if(LED_shan==0)
+ 201   2          {
+ 202   3            wendu=0;
+ 203   3            if(Time_set==1)
+ 204   3            {
+ 205   4              if(shijian[2]==0)shijian[2]=23;
+ 206   4              else shijian[2]--;
+ 207   4              DS_init();
+ 208   4            }
+ 209   3            else if(Time_set==2)
+ 210   3            {
+ 211   4              if(shijian[1]==0)shijian[1]=59;
+ 212   4              else shijian[1]--;
+ 213   4              DS_init();
+ 214   4            }
+ 215   3            else if(Time_set==3)
+ 216   3            {
+ 217   4              if(shijian[0]==0)shijian[0]=59;
+ 218   4              else shijian[0]--;
+ 219   4              DS_init();
+ 220   4            }
+ 221   3            else if(Alarm_set==1)
+ 222   3            {
+ 223   4              if(Alarm_clock[2]==0)Alarm_clock[2]=23;
+ 224   4              else Alarm_clock[2]--;
+ 225   4            }
+ 226   3            else if(Alarm_set==2)
+ 227   3            {
+ 228   4              if(Alarm_clock[1]==0)Alarm_clock[1]=59;
+ 229   4              else Alarm_clock[1]--;
+C51 COMPILER V9.56.0.0   MAIN                                                              10/14/2017 18:14:00 PAGE 5   
+
+ 230   4            }
+ 231   3            else if(Alarm_set==3)
+ 232   3            {
+ 233   4              if(Alarm_clock[0]==0)Alarm_clock[0]=59;
+ 234   4              else Alarm_clock[0]--;
+ 235   4            }
+ 236   3          }
+ 237   2          else if(LED_shan==1)
+ 238   2          {
+ 239   3            LED_shan=0;P2=0X80;P0=0XFF;
+ 240   3          }
+ 241   2        }
+ 242   1      }
+ 243          
+ 244          
+ 245          void Timer0Init(void)   //5毫秒@11.0592MHz
+ 246          {
+ 247   1        AUXR |= 0x80;   //定时器时钟1T模式
+ 248   1        TMOD &= 0xF0;   //设置定时器模式
+ 249   1        TL0 = 0x00;   //设置定时初值
+ 250   1        TH0 = 0x28;   //设置定时初值
+ 251   1        TF0 = 0;    //清除TF0标志
+ 252   1        TR0 = 1;    //定时器0开始计时
+ 253   1        
+ 254   1        ET0=1;
+ 255   1        EA=1;
+ 256   1      }
+ 257          
+ 258          
+ 259          void time0() interrupt 1
+ 260          {
+ 261   1        tt++;miao++;
+ 262   1        if((tt==40)&&(LED_shan==1))
+ 263   1        {
+ 264   2          tt=0;
+ 265   2          if(fla==0){fla=1;P2=0X80;P0=0XFE;}
+ 266   2          else if(fla==1){fla=0;P2=0X80;P0=0XFF;}
+ 267   2        }
+ 268   1        
+ 269   1        if(miao==1000)
+ 270   1        {
+ 271   2          miao=0;LED_shan=0;P2=0X80;P0=0XFF;
+ 272   2        }
+ 273   1      }
+ 274          
+ 275          
+ 276          void allinit(void)
+ 277          {
+ 278   1        P2=0XA0;
+ 279   1        P0=0x00;//关闭蜂鸣器继电器
+ 280   1        
+ 281   1        P2=0X80;
+ 282   1        P0=0XFF;//关闭LED灯
+ 283   1        
+ 284   1        P2=0XC0;
+ 285   1        P0=0XFF;//选择所有数码管
+ 286   1        P2=0XFF;
+ 287   1        P0=0XFF;//关闭多有数码管  
+ 288   1      }
+ 289          
+ 290          void display1(uchar yi,uchar er)
+ 291          {
+C51 COMPILER V9.56.0.0   MAIN                                                              10/14/2017 18:14:00 PAGE 6   
+
+ 292   1        P2=0XC0;
+ 293   1        P0=0X01;//选择所有数码管
+ 294   1        P2=0XFF;
+ 295   1        P0=tab[yi];//关闭多有数码管 
+ 296   1        delayms(1);
+ 297   1        
+ 298   1        P2=0XC0;
+ 299   1        P0=0X02;//选择所有数码管
+ 300   1        P2=0XFF;
+ 301   1        P0=tab[er];//关闭多有数码管 
+ 302   1        delayms(1);
+ 303   1      }
+ 304          
+ 305          void display2(uchar san,uchar si)
+ 306          {
+ 307   1        P2=0XC0;
+ 308   1        P0=0X04;//选择所有数码管
+ 309   1        P2=0XFF;
+ 310   1        P0=tab[san];//关闭多有数码管  
+ 311   1        delayms(1);
+ 312   1        
+ 313   1        P2=0XC0;
+ 314   1        P0=0X08;//选择所有数码管
+ 315   1        P2=0XFF;
+ 316   1        P0=tab[si];//关闭多有数码管 
+ 317   1        delayms(1);
+ 318   1      }
+ 319          
+ 320          void display3(uchar wu,uchar liu)
+ 321          {
+ 322   1        P2=0XC0;
+ 323   1        P0=0X10;//选择所有数码管
+ 324   1        P2=0XFF;
+ 325   1        P0=tab[wu];//关闭多有数码管 
+ 326   1        delayms(1);
+ 327   1        
+ 328   1        P2=0XC0;
+ 329   1        P0=0X20;//选择所有数码管
+ 330   1        P2=0XFF;
+ 331   1        P0=tab[liu];//关闭多有数码管  
+ 332   1        delayms(1);
+ 333   1      }
+ 334          
+ 335          void display4(uchar qi,uchar ba)
+ 336          {
+ 337   1        P2=0XC0;
+ 338   1        P0=0X40;//选择所有数码管
+ 339   1        P2=0XFF;
+ 340   1        P0=tab[qi];//关闭多有数码管 
+ 341   1        delayms(1);
+ 342   1        
+ 343   1        P2=0XC0;
+ 344   1        P0=0X80;//选择所有数码管
+ 345   1        P2=0XFF;
+ 346   1        P0=tab[ba];//关闭多有数码管 
+ 347   1        delayms(1);
+ 348   1        
+ 349   1        P2=0XC0;
+ 350   1        P0=0XFF;//选择所有数码管
+ 351   1        P2=0XFF;
+ 352   1        P0=0XFF;//关闭所有数码管  
+ 353   1      }
+C51 COMPILER V9.56.0.0   MAIN                                                              10/14/2017 18:14:00 PAGE 7   
+
+ 354          
+ 355          void delayms(uint ms)
+ 356          {
+ 357   1        uint i,j;
+ 358   1        for(i=ms;i>0;i--)
+ 359   1          for(j=845;j>0;j--);
+ 360   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1445    ----
+   CONSTANT SIZE    =     13    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     18       4
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      2    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

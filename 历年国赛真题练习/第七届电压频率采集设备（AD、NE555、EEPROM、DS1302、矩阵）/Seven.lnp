@@ -1,0 +1,7 @@
+"Display.obj",
+"ds1302.obj",
+"iic.obj",
+"Key.obj",
+"Main.obj" 
+TO "Seven" 
+RAMSIZE(256) 

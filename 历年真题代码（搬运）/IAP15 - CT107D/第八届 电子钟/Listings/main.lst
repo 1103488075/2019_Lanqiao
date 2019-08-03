@@ -1,0 +1,175 @@
+C51 COMPILER V9.00   MAIN                                                                  03/04/2018 16:21:18 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main
+                    -.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include"STC15F2K60S2.h"
+   2          #include"allinit.h"
+   3          #include"smg.h"
+   4          #include"keypad.h"
+   5          #include"onewire.c"
+   6          #include"ds1302.c"
+*** WARNING C231 IN LINE 8 OF DS1302.C: 'Timeinit': redefinition
+   7          
+   8          #define uchar unsigned char
+   9          #define uint unsigned int
+  10          
+  11          uchar Hour_Now,Min_Now,Sec_Now; //实时时间
+  12          
+  13          
+  14          
+  15          void main(void)
+  16          {
+  17   1        allinit();
+  18   1        smg_Timer0init();
+  19   1        DS1302_Init();
+  20   1        //开始读取时间，防止时间一开始读不到为 00-00-00 ，触发闹钟提醒
+  21   1        Hour_Now = Ds1302_Single_Byte_Read(ds1302_hr_addr);
+  22   1        Min_Now = Ds1302_Single_Byte_Read(ds1302_min_addr);
+  23   1        Sec_Now = Ds1302_Single_Byte_Read(ds1302_sec_addr);
+  24   1        Secbuff = Sec_Now;
+  25   1        Minbuff = Min_Now;
+  26   1        Hourbuff = Hour_Now;
+  27   1        while(1)
+  28   1        {
+  29   2          key_down();
+  30   2          LED1(STAR);
+  31   2          //时间读取
+  32   2          if(flag200ms == 1)
+  33   2          {
+  34   3            flag200ms = 0;
+  35   3            if(STAR_Flag == 1)
+  36   3              STAR = ~STAR;
+  37   3            Temper = Temper_Read();
+  38   3            Hour_Now = Ds1302_Single_Byte_Read(ds1302_hr_addr);
+  39   3            Min_Now = Ds1302_Single_Byte_Read(ds1302_min_addr);
+  40   3            Sec_Now = Ds1302_Single_Byte_Read(ds1302_sec_addr);
+  41   3            if(Secbuff != Sec_Now  && setnum7 == 0)
+  42   3            {
+  43   4              Secbuff = Sec_Now;
+  44   4              Minbuff = Min_Now;
+  45   4              Hourbuff = Hour_Now;
+  46   4            }
+  47   3          }
+  48   2          /*------------------------默认显示--------------------------------------*/
+  49   2          if(TIME_NOW_FLAG == 0 && TIME_BUZZ_FLAG == 0)
+  50   2          {
+  51   3            //闹钟判断
+  52   3            if((Secbuff / 16) * 10 + Secbuff % 16 == Sec_Flag && (Minbuff / 16) * 10 + Minbuff % 16 == Min_Flag && 
+             -(Hourbuff / 16) * 10 + Hourbuff %10 == Hour_Flag)
+C51 COMPILER V9.00   MAIN                                                                  03/04/2018 16:21:18 PAGE 2   
+
+  53   3            {
+  54   4              STAR_Flag = 1;
+  55   4            }
+  56   3            // 5S 后关闭
+  57   3            if(flag5s == 1)
+  58   3            {
+  59   4              flag5s = 0;
+  60   4              LED2(1);
+  61   4              STAR = 0;
+  62   4              STAR_Flag = 0;
+  63   4            }
+  64   3            if(dspbuff[2] != 16)
+  65   3            {
+  66   4              dspbuff[0] = Hourbuff / 16; 
+  67   4              dspbuff[1] = Hourbuff % 16;
+  68   4              dspbuff[2] = 17;
+  69   4              dspbuff[3] = Minbuff / 16;
+  70   4              dspbuff[4] = Minbuff % 16;
+  71   4              dspbuff[5] = 17;
+  72   4              dspbuff[6] = Secbuff / 16;
+  73   4              dspbuff[7] = Secbuff % 16;
+  74   4            }
+  75   3            
+  76   3          }
+  77   2          /*-------------------------S7 按键-------------------------------------*/
+  78   2          if(Sec_Now % 2 == 0 && setnum7 == 1 && TIME_NOW_FLAG == 1 && TIME_BUZZ_FLAG == 0)
+  79   2          {
+  80   3            dspbuff[0] = 16;
+  81   3            dspbuff[1] = 16;
+  82   3          }
+  83   2          else if(Sec_Now % 2 != 0 &&  TIME_NOW_FLAG == 1 && TIME_BUZZ_FLAG == 0)
+  84   2          {
+  85   3            dspbuff[0] = Hourbuff / 16; 
+  86   3            dspbuff[1] = Hourbuff % 16;
+  87   3          }
+  88   2          dspbuff[2] = 17;
+  89   2          if(Sec_Now % 2 == 0 && setnum7 == 2 && TIME_NOW_FLAG == 1 && TIME_BUZZ_FLAG == 0)
+  90   2          {
+  91   3            dspbuff[3] = 16;
+  92   3            dspbuff[4] = 16;
+  93   3          }
+  94   2          else if(Sec_Now % 2 != 0  && TIME_NOW_FLAG == 1 && TIME_BUZZ_FLAG == 0)
+  95   2          {
+  96   3            dspbuff[3] = Minbuff / 16;
+  97   3            dspbuff[4] = Minbuff % 16;
+  98   3          }
+  99   2          dspbuff[5] = 17;
+ 100   2          if(Sec_Now % 2 == 0 && setnum7 == 3 && TIME_NOW_FLAG == 1 && TIME_BUZZ_FLAG == 0)
+ 101   2          {
+ 102   3            dspbuff[6] = 16;
+ 103   3            dspbuff[7] = 16;
+ 104   3          }
+ 105   2          else if(Sec_Now % 2 != 0 &&  TIME_NOW_FLAG == 1 && TIME_BUZZ_FLAG == 0)
+ 106   2          {
+ 107   3            dspbuff[6] = Secbuff / 16;
+ 108   3            dspbuff[7] = Secbuff % 16;
+ 109   3          }
+ 110   2              /*-------------------------S6 按键-------------------------------------*/
+ 111   2          if(Sec_Now % 2 == 0 && setnum6 == 1 && (TIME_NOW_FLAG == 0 && TIME_BUZZ_FLAG == 1))
+ 112   2          {
+ 113   3            dspbuff[0] = 16;
+ 114   3            dspbuff[1] = 16;
+C51 COMPILER V9.00   MAIN                                                                  03/04/2018 16:21:18 PAGE 3   
+
+ 115   3          }
+ 116   2          else if(Sec_Now % 2 != 0 &&  (TIME_NOW_FLAG == 0 && TIME_BUZZ_FLAG == 1))
+ 117   2          {
+ 118   3            dspbuff[0] = Hour_Flag / 10; 
+ 119   3            dspbuff[1] = Hour_Flag % 10;
+ 120   3          }
+ 121   2          dspbuff[2] = 17;
+ 122   2          if(Sec_Now % 2 == 0 && setnum6 == 2 && (TIME_NOW_FLAG == 0 && TIME_BUZZ_FLAG == 1))
+ 123   2          {
+ 124   3            dspbuff[3] = 16;
+ 125   3            dspbuff[4] = 16;
+ 126   3          }
+ 127   2          else if(Sec_Now % 2 != 0 &&  (TIME_NOW_FLAG == 0 && TIME_BUZZ_FLAG == 1))
+ 128   2          {
+ 129   3            dspbuff[3] = Min_Flag / 10;
+ 130   3            dspbuff[4] = Min_Flag % 10;
+ 131   3          }
+ 132   2          dspbuff[5] = 17;
+ 133   2          if(Sec_Now % 2 == 0 && setnum6 == 3 && (TIME_NOW_FLAG == 0 && TIME_BUZZ_FLAG == 1))
+ 134   2          {
+ 135   3            dspbuff[6] = 16;
+ 136   3            dspbuff[7] = 16;
+ 137   3          }
+ 138   2          else if(Sec_Now % 2 != 0 &&  (TIME_NOW_FLAG == 0 && TIME_BUZZ_FLAG == 1))
+ 139   2          {
+ 140   3            dspbuff[6] = Sec_Flag / 10;
+ 141   3            dspbuff[7] = Sec_Flag % 10;
+ 142   3          }
+ 143   2        }
+ 144   1      }
+*** WARNING C290 IN LINE 321 OF MAIN.C: missing return value
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1980    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     70    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      7       3
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  2 WARNING(S),  0 ERROR(S)

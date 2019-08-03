@@ -1,0 +1,8 @@
+"Display.obj",
+"Key.obj",
+"Main.obj",
+"ds1302.obj",
+"iic.obj",
+"onewire.obj" 
+TO "Drive" 
+RAMSIZE(256) 

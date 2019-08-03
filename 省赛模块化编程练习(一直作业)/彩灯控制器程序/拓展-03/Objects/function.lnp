@@ -1,0 +1,5 @@
+".\Objects\STARTUP.obj",
+".\Objects\mian.obj",
+".\Objects\iic.obj" 
+TO ".\Objects\function" 
+PRINT(".\Listings\function.m51") RAMSIZE(256) 

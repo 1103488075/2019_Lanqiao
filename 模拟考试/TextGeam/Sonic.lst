@@ -1,0 +1,106 @@
+C51 COMPILER V9.00   SONIC                                                                 03/13/2019 22:07:53 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE SONIC
+OBJECT MODULE PLACED IN .\Sonic.obj
+COMPILER INVOKED BY: C:\Keil_v4\C51\BIN\C51.EXE ..\历年国赛真题练习\第八届超声波测距机（DAC、EEPROM）\Sonic.c BROWSE DEB
+                    -UG OBJECTEXTEND PRINT(.\Sonic.lst) OBJECT(.\Sonic.obj)
+
+line level    source
+
+   1          #include "Sonic.h"
+   2          
+   3                                                  
+   4                          
+   5          uchar t = 0;
+   6          uint SonicValue = 0;
+   7          
+   8          uint Read_Distance()
+   9          {
+  10   1              if(s_flag)
+*** ERROR C202 IN LINE 10 OF ..\历年国赛真题练习\第八届超声波测距机（DAC、EEPROM）\SONIC.C: 's_flag': undefined identifi
+             -er
+  11   1              {
+  12   2                      s_flag = 0;
+*** ERROR C202 IN LINE 12 OF ..\历年国赛真题练习\第八届超声波测距机（DAC、EEPROM）\SONIC.C: 's_flag': undefined identifi
+             -er
+  13   2                      Send_Wave();
+  14   2                      TR1 = 1;
+  15   2                      while((RX ==1)&&(TF1 == 0));
+  16   2                      TR1 = 0;
+  17   2      
+  18   2                      if(TF1 == 1)
+  19   2                      {
+  20   3                              TF1 = 0;
+  21   3                         SonicValue = 99;
+  22   3                      }
+  23   2                      else 
+  24   2                      {
+  25   3                              t = TH1;
+  26   3                              t <<=8;
+  27   3                              t |= TL1;
+  28   3                              SonicValue = (uint)(t*0.017);
+  29   3                              SonicValue = SonicValue/12;
+  30   3                      }
+  31   2                      TH1 = 0;
+  32   2                      TL1 = 0;
+  33   2              }
+  34   1              return SonicValue;
+  35   1      }
+  36          
+  37          void Send_Wave()
+  38          {
+  39   1                uchar i = 8;
+  40   1                do
+  41   1                {
+  42   2                      TX = 1;
+  43   2                      somenop2;somenop2;somenop2;somenop2;somenop2;somenop2;somenop2;somenop2;somenop2;somenop2;
+*** ERROR C202 IN LINE 43 OF ..\历年国赛真题练习\第八届超声波测距机（DAC、EEPROM）\SONIC.C: 'somenop2': undefined identi
+             -fier
+*** ERROR C202 IN LINE 43 OF ..\历年国赛真题练习\第八届超声波测距机（DAC、EEPROM）\SONIC.C: 'somenop2': undefined identi
+             -fier
+*** ERROR C202 IN LINE 43 OF ..\历年国赛真题练习\第八届超声波测距机（DAC、EEPROM）\SONIC.C: 'somenop2': undefined identi
+             -fier
+*** ERROR C202 IN LINE 43 OF ..\历年国赛真题练习\第八届超声波测距机（DAC、EEPROM）\SONIC.C: 'somenop2': undefined identi
+C51 COMPILER V9.00   SONIC                                                                 03/13/2019 22:07:53 PAGE 2   
+
+             -fier
+*** ERROR C202 IN LINE 43 OF ..\历年国赛真题练习\第八届超声波测距机（DAC、EEPROM）\SONIC.C: 'somenop2': undefined identi
+             -fier
+*** ERROR C202 IN LINE 43 OF ..\历年国赛真题练习\第八届超声波测距机（DAC、EEPROM）\SONIC.C: 'somenop2': undefined identi
+             -fier
+*** ERROR C202 IN LINE 43 OF ..\历年国赛真题练习\第八届超声波测距机（DAC、EEPROM）\SONIC.C: 'somenop2': undefined identi
+             -fier
+*** ERROR C202 IN LINE 43 OF ..\历年国赛真题练习\第八届超声波测距机（DAC、EEPROM）\SONIC.C: 'somenop2': undefined identi
+             -fier
+*** ERROR C202 IN LINE 43 OF ..\历年国赛真题练习\第八届超声波测距机（DAC、EEPROM）\SONIC.C: 'somenop2': undefined identi
+             -fier
+*** ERROR C202 IN LINE 43 OF ..\历年国赛真题练习\第八届超声波测距机（DAC、EEPROM）\SONIC.C: 'somenop2': undefined identi
+             -fier
+  44   2                      TX = 0;
+  45   2                      somenop2;somenop2;somenop2;somenop2;somenop2;somenop2;somenop2;somenop2;somenop2;somenop2;
+*** ERROR C202 IN LINE 45 OF ..\历年国赛真题练习\第八届超声波测距机（DAC、EEPROM）\SONIC.C: 'somenop2': undefined identi
+             -fier
+*** ERROR C202 IN LINE 45 OF ..\历年国赛真题练习\第八届超声波测距机（DAC、EEPROM）\SONIC.C: 'somenop2': undefined identi
+             -fier
+*** ERROR C202 IN LINE 45 OF ..\历年国赛真题练习\第八届超声波测距机（DAC、EEPROM）\SONIC.C: 'somenop2': undefined identi
+             -fier
+*** ERROR C202 IN LINE 45 OF ..\历年国赛真题练习\第八届超声波测距机（DAC、EEPROM）\SONIC.C: 'somenop2': undefined identi
+             -fier
+*** ERROR C202 IN LINE 45 OF ..\历年国赛真题练习\第八届超声波测距机（DAC、EEPROM）\SONIC.C: 'somenop2': undefined identi
+             -fier
+*** ERROR C202 IN LINE 45 OF ..\历年国赛真题练习\第八届超声波测距机（DAC、EEPROM）\SONIC.C: 'somenop2': undefined identi
+             -fier
+*** ERROR C202 IN LINE 45 OF ..\历年国赛真题练习\第八届超声波测距机（DAC、EEPROM）\SONIC.C: 'somenop2': undefined identi
+             -fier
+*** ERROR C202 IN LINE 45 OF ..\历年国赛真题练习\第八届超声波测距机（DAC、EEPROM）\SONIC.C: 'somenop2': undefined identi
+             -fier
+*** ERROR C202 IN LINE 45 OF ..\历年国赛真题练习\第八届超声波测距机（DAC、EEPROM）\SONIC.C: 'somenop2': undefined identi
+             -fier
+*** ERROR C202 IN LINE 45 OF ..\历年国赛真题练习\第八届超声波测距机（DAC、EEPROM）\SONIC.C: 'somenop2': undefined identi
+             -fier
+  46   2                }while(i--);
+  47   1      
+  48   1      }
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  22 ERROR(S)

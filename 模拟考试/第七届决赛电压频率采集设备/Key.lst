@@ -1,0 +1,150 @@
+C51 COMPILER V9.00   KEY                                                                   03/21/2019 19:48:26 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE KEY
+OBJECT MODULE PLACED IN Key.obj
+COMPILER INVOKED BY: C:\Keil_v4\C51\BIN\C51.EXE Use\Key.c BROWSE DEBUG OBJECTEXTEND PRINT(.\Key.lst) OBJECT(Key.obj)
+
+line level    source
+
+   1          #include "Key.h"
+   2          #include "Display.h"
+   3          #include "ds1302.h"
+   4          #include "iic.h"
+   5          uchar value = 0;
+   6          uchar S5 = 0,S4 = 0; 
+   7          bit S7 = 0,S6 = 0,S9 = 0;
+   8          void Key16()
+   9          {
+  10   1                 P42 = 0; P44 = 0; P3 = 0x0f;
+  11   1      
+  12   1      
+  13   1                 if(P3 != 0x0f)
+  14   1                 {
+  15   2                              Delay2ms();
+  16   2                              if(P3 != 0x0f)
+  17   2                              {
+  18   3                                 switch(P3)
+  19   3                                 {
+  20   4                                              case 0x0e:value = 1;break;
+  21   4                                              case 0x0d:value = 5;break;
+  22   4                                              case 0x0b:value = 9;break;
+  23   4                                              case 0x07:value = 13;break;
+  24   4                                 }
+  25   3                                 P3 = 0xf0; P42 = 1; P44 = 1;
+  26   3      
+  27   3                                 if(P44 == 0)value += 0;while(P44 == 0);
+  28   3                                 if(P42 == 0)value += 1;while(P42 == 0);
+  29   3                                 if(P3 == 0xd0)value += 2;while(P3 == 0xd0);
+  30   3                                 if(P3 == 0xe0)value += 3;while(P3 == 0xe0);
+  31   3       
+  32   3                               
+  33   3                                       switch(value)
+  34   3                                       {
+  35   4                                        
+  36   4                                              case(1): if(S7 == 0)S7 = 1; else if(S7 == 1)S7 = 0;break;       //S7    Time display
+  37   4                                              case(5): if(S6 == 0){S6 = 1;S7 = 0;} else if(S6 == 1){S6 = 0;EEPROM_Write(0x00,MAX);Delay2ms();EEPROM
+             -_Write(0x01,MIN);Delay2ms();}break; // S6     voltage display
+  38   4                                              case(9): if(S5 == 0){S5 = 1;S6 = 0;} else if(S5 == 1) S5 = 0;break;     //S5 Khz
+  39   4                                              case(13):if(S7 == 1)  //S4 time seting
+  40   4                                                               {
+  41   5                                                                      if(S4 == 0)
+  42   5                                                                      S4 = 1;
+  43   5                                                                      else if(S4 == 1)
+  44   5                                                                      S4 = 2;
+  45   5                                                                      else if(S4 == 2)
+  46   5                                                                      S4 = 3;
+  47   5                                                                      else if(S4 == 3)
+  48   5                                                                      S4 = 0;
+  49   5                                                               }
+  50   4                                                               else if(S6 == 1)//voltage
+  51   4                                                               {
+  52   5                                                                      if(S4 == 0)
+  53   5                                                                      S4 = 1;
+  54   5                                                                      else if(S4 == 1)
+C51 COMPILER V9.00   KEY                                                                   03/21/2019 19:48:26 PAGE 2   
+
+  55   5                                                                      S4 = 2;
+  56   5                                                                      else if(S4 == 2)
+  57   5                                                                      S4 = 0;
+  58   5                                                               }
+  59   4                                                               else if(S5 == 1)
+  60   4                                                               {
+  61   5                                                                      if(S4 == 0)
+  62   5                                                                      S4 = 1;
+  63   5                                                                      else if(S4 == 1)
+  64   5                                                                      S4 = 0;
+  65   5                                                               }
+  66   4                                                               else if(S9 == 1)
+  67   4                                                               {
+  68   5                                                                      if(S4 == 0)
+  69   5                                                                      S4 = 1;
+  70   5                                                                      else if(S4 == 1)
+  71   5                                                                      S4 = 0;
+  72   5                                                               };break;
+  73   4      
+  74   4      
+  75   4                                                      case(2):if(S7 == 1)//seting +++
+  76   4                                                                      {
+  77   5                                                                              if(S4 == 1)
+  78   5                                                                              {Time[2]++;     if(Time[2] > 23)        Time[2] = 23;   Write_Time();}
+  79   5                                                                              else if(S4 == 2)
+  80   5                                                                              {Time[1]++;     if(Time[1] >= 59)       Time[1] = 59;   Write_Time();}
+  81   5                                                                              else if(S4 == 3)
+  82   5                                                                              {Time[0]++;     if(Time[0] >= 59)       Time[0] = 59;   Write_Time();}
+  83   5                                                                      }
+  84   4                                                                      else if(S6 == 1) //voltage interface
+  85   4                                                                      {
+  86   5                                                                              if(S4 == 1)
+  87   5                                                                              {MAX = MAX +5;  if(MAX > 20)    MAX = 20;}
+  88   5                                                                              else if(S4 == 2)
+  89   5                                                                              {MIN = MIN +5;  if(MIN > 20)    MIN = 20;}
+  90   5                                                                       }
+  91   4                                                                      ;break;
+  92   4                                                      case(6):if(S7 == 1)     //seting --
+  93   4                                                                      {
+  94   5                                                                              if(S4 == 1)
+  95   5                                                                              {Time[2]--;     if(Time[2] <= 0)        Time[2] = 0;    Write_Time();}
+  96   5                                                                              else if(S4 == 2)
+  97   5                                                                              {Time[1]--;     if(Time[1] <= 0)        Time[1] = 0;    Write_Time();}
+  98   5                                                                              else if(S4 == 3)
+  99   5                                                                              {Time[0]--;     if(Time[0] <= 0)        Time[0] = 0;    Write_Time();}
+ 100   5                                                                      }
+ 101   4                                                                      else if(S6 == 1)  //voltage interface
+ 102   4                                                                      {
+ 103   5                                                                              if(S4 == 1)
+ 104   5                                                                              {MAX = MAX - 5; if(MAX < 0)     MAX = 0;}
+ 105   5                                                                              else if(S4 == 2)
+ 106   5                                                                              {MIN = MIN - 5; if(MIN < 0)     MIN = 0;}
+ 107   5                                                                       };break; 
+ 108   4                                                      case(10):if(S9 == 1){S9 = 0;S5 = 0;} else if(S9 == 0)   S9 = 1;
+ 109   4                                                      
+ 110   4                                                      ;break;
+ 111   4                                                      case(14): yi = 7;break;
+ 112   4                                       }
+ 113   3                              }
+ 114   2                 }
+ 115   1      }
+ 116           
+C51 COMPILER V9.00   KEY                                                                   03/21/2019 19:48:26 PAGE 3   
+
+ 117          
+ 118          
+ 119          
+ 120          
+ 121          
+ 122          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    616    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      3    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      3    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
